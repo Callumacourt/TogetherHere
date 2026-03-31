@@ -1,5 +1,6 @@
+/* --- 1. BASE STYLES (Mobile / Universal) --- */
 :root {
-  --indent-unit: 3.5rem;
+  --indent-unit: 0.6rem;
 }
 
 .home {
@@ -9,140 +10,183 @@
 .heroContainer {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100vh; 
+  min-height: 100dvh; 
   background-color: #000;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between; 
   align-items: flex-start;
-  padding-left: 15%;
+  padding-top: 12vh; 
+  padding-left: 10%;
+  padding-bottom: 10vh;
+  overflow: hidden;
 }
 
 .heroContainer::before {
   content: '';
   position: absolute;
   inset: 0;
+  /* Darker bottom gradient to anchor the input field */
   background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.2) 50%,
-    transparent 100%
+    to bottom,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.85) 100%
   );
   z-index: 5;
-}
-
-.heroContent {
-  position: relative;
-  z-index: 10;
+  pointer-events: none;
 }
 
 .heroImg {
   object-fit: cover;
-  filter: grayscale(100%);
-  opacity: 0.7;
+  filter: grayscale(100%) contrast(1.1);
+  opacity: 0.5;
   transition: opacity 1.5s ease-in-out;
-  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  object-position: 70% center; 
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
+.heroContent, .emailSection {
+  position: relative;
+  z-index: 10;
+  color: #ffffff;
 }
 
 .heroTitle {
-  font-size: clamp(3rem, 8vw, 5rem);
+  font-size: 2.2rem; 
   font-weight: 700;
   letter-spacing: -0.05em;
-  line-height: 1;
-  margin-bottom: 2rem;
-  color: #ffffff;
+  line-height: 1.1;
+  margin-bottom: 0.8rem;
 }
 
 .heroSubtitle {
-  padding-left: 2%;
-  font-size: 1.2rem;
-  letter-spacing: 0.03em;
-  line-height: 2rem;
-}
-
-.heroTitle,
-.heroSubtitle {
-  position: relative;
-  z-index: 10;
-  color: #ffffff;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
 }
 
 .heroSubtitle p {
-  margin: 0.4rem 0;
+  margin: 0.3rem 0;
   font-weight: 300;
 }
 
-.step1 { padding-left: var(--indent-unit); }
-.step2 { padding-left: calc(var(--indent-unit) * 2); }
-.step3 { padding-left: calc(var(--indent-unit) * 3); }
-.step4 { padding-left: calc(var(--indent-unit) * 4.75); }
+.step1 { padding-left: calc(var(--indent-unit) * 2); }
+.step2 { padding-left: calc(var(--indent-unit) * 4); }
 
 .emailSection {
-  position: relative;
-  z-index: 10;
-  margin-top: 6rem;
-  width: 100%;
-  margin-left: calc(var(--indent-unit) * 3.2);
+  width: 85%;
+  margin-top: 0; 
 }
 
 .emailHeader {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 1.2rem;
-  letter-spacing: 0.25em;
+  font-size: 0.65rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.emailForm {
-  width: 100%;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .inputWrapper {
   position: relative;
   width: 100%;
-  max-width: 350px;
-  display: flex;
-  align-items: center;
+  max-width: 320px;
 }
 
 .emailInput {
   width: 100%;
-  padding: 1rem 3.5rem 1rem 1.5rem;
+  padding: 0.65rem 3.5rem 0.65rem 1.25rem;
   border-radius: 9999px;
   border: none;
   background-color: #ffffff;
   color: #000000;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   outline: none;
+  font-family: var(--font-inter);
+  font-weight: 300;
 }
 
 .submitButton {
   position: absolute;
-  right: 0.75rem;
+  right: 0.6rem;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: transform 0.2s ease;
 }
 
-.submitButton:hover {
-  transform: translateY(-50%) translateX(3px);
+/* --- DESKTOP --- */
+@media (min-width: 1024px) {
+  :root {
+    --indent-unit: 3.5rem;
+  }
+
+  .heroContainer {
+    justify-content: center;
+    padding-top: 0;
+    padding-left: 15%;
+    padding-bottom: 5vh;
+  }
+
+  .heroContainer::before {
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.2) 60%,
+      transparent 100%
+    );
+  }
+
+  .heroTitle {
+    font-size: clamp(3rem, 8vw, 5rem);
+    margin-bottom: 2rem;
+  }
+
+  .heroSubtitle {
+    padding-left: 2%;
+    font-size: 1.2rem;
+    line-height: 2rem;
+  }
+  
+  .step1 { padding-left: var(--indent-unit); }
+  .step2 { padding-left: calc(var(--indent-unit) * 2); }
+
+  .emailSection {
+    margin-top: 6rem;
+    margin-left: calc(var(--indent-unit) * 2.5);
+    width: 100%;
+  }
+
+  .emailHeader {
+    font-size: 0.9rem;
+    letter-spacing: 0.25em;
+  }
+
+  .emailInput {
+    padding: 1rem 3.5rem 1rem 1.5rem;
+    font-size: 0.9rem;
+  }
 }
 
-@media (max-width: 1024px) {
-  :root { --indent-unit: 2rem; }
+/* --- 3. UI ANIMATIONS --- */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-@media (max-width: 768px) {
-  :root { --indent-unit: 1rem; }
-  .heroContainer { padding-left: 5%; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.successMsg {
+  position: absolute;
+  top: calc(100% + 1rem);
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
 }
