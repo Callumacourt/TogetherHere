@@ -2,7 +2,7 @@
 
 import styles from "./styles/Hero.module.css";
 import Image from "next/image";
-import Map from "./components/Map";
+import Map from "./components/Map/Map";
 import { useState } from "react";
 
 export default function Home() {
