@@ -2,6 +2,7 @@
 
 import styles from "./styles/Hero.module.css";
 import Image from "next/image";
+import Map from "./components/Map";
 import { useState } from "react";
 
 export default function Home() {
@@ -75,6 +76,37 @@ export default function Home() {
           )}
         </div>
       </section>
+  <section className={styles.explanationSection}>
+    <div className={styles.explanationContent}> 
+        <h2>We all have something to say</h2>
+          <p>
+            We want to create a digital map of human presence. Stand where a 
+            stranger stood and feel what they felt in their heart, feel that they are you.
+            Leave a note for the next person. About whatever you want. 
+            The city lives inside each of us.
+          </p>
+        <div className={styles.explanationImgContainer}>
+        <Image
+          src="/explanationImg.jpg"
+          className={styles.explanationImg}
+          alt="A person riding a bike through a city"
+          width={500}
+          height={650}
+          quality={95}
+        />
+        <small>Random Street. 12:54PM</small>
+      </div>
+          <p>
+            TogetherHere is a non-profit experiment in spatial empathy hoping to bring people 
+            together and create a visualisation of our collective 
+            living mapped to our collective space. 
+          </p>
+        <button className={styles.cta2}>Drop A Note</button>
+    </div>
+</section>
+<section className = {styles.mapSection}>
+  <Map/>
+</section>
     </main>
   );
 }
