@@ -2,3 +2,9 @@
     width: 90%;
     height: 90svh;
 }
+
+.mapMarker {
+    height: 5vh;
+    width: 5vw;
+    background-color: red;
+}

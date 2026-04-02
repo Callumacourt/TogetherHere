@@ -1,45 +1,44 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import Map, { Popup, Marker } from "react-map-gl/mapbox";
+import 'mapbox-gl/dist/mapbox-gl.css';
 import styles from "./Map.module.css";
 
-export default function Map() {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-
+export default function MapComponent() {
   const bounds: mapboxgl.LngLatBoundsLike = [
     [-3.195, 51.47],
     [-3.17, 51.495],
   ];
 
-  useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
+  return (
+    <Map 
+        mapboxAccessToken= {process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+        maxBounds={bounds}
+        initialViewState={
+            {
+                longitude: -3.1791,
+                latitude: 51.4756,
+                zoom: 12.5
+            }}  
+            mapStyle= "mapbox://styles/mapbox/dark-v11"
+            minZoom={11}
+            maxZoom={17}
+    >
+        <Marker longitude={-3.1836} latitude={51.4823} anchor="bottom">
+            <div className = {styles.mapMarker}>
 
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
+            </div>
+        </Marker>
+        <Marker longitude={-3.1854} latitude={51.4821} anchor="bottom">
+            <div className = {styles.mapMarker}>
 
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: "mapbox://styles/mapbox/dark-v11",
-      center: [-3.1791, 51.4756],
-      maxBounds: bounds,
-      zoom: 12.5,
-      minZoom: 11,
-      maxZoom: 17,
-    });
+            </div>
+        </Marker>
+        <Marker longitude={-3.1890} latitude={51.4840} anchor="bottom">
+            <div className = {styles.mapMarker}>
 
-    if (window.matchMedia("(min-width: 1024px)").matches) {
-      map.addControl(new mapboxgl.NavigationControl(), "top-right");
-    }
-
-    mapRef.current = map;
-
-    return () => {
-      mapRef.current?.remove();
-      mapRef.current = null;
-    };
-  }, []);
-
-  return <div ref={mapContainerRef} id="map" className={styles.mapContainer} />;
+            </div>
+        </Marker>
+    </Map>
+  );
 }
