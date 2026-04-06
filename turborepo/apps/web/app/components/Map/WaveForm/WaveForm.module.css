@@ -1,0 +1,13 @@
+.waveContainer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.waveContainer div {
+  aspect-ratio: .125/1;
+  background-color: white;
+  border-radius: 15px;
+  width: .1vw;
+}

@@ -63,7 +63,7 @@ export default function Home() {
                     <path d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
-                  <Image src="/arrow-right.svg" alt="" width={20} height={20} />
+                  <Image src="/icons/arrow-right.svg" alt="" width={20} height={20} />
                 )}
               </button>
             </div>
@@ -87,7 +87,7 @@ export default function Home() {
           </p>
         <div className={styles.explanationImgContainer}>
         <Image
-          src="/explanationImg.jpg"
+          src="/images/hero/explanationImg.jpg"
           className={styles.explanationImg}
           alt="A person riding a bike through a city"
           width={500}
