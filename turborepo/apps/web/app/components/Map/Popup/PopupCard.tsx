@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./Popup.module.css";
 import Image from "next/image";
 import AudioWave from "../../AudioWave/AudioWave";
+import { computePeaks } from "../../../utils/drawingUtils";
 
 type PopupCardProps = {
   url: string;
@@ -10,23 +11,55 @@ type PopupCardProps = {
   timeAgo: string;
 };
 
+const waveFormCaches = new Map();
+
 export default function PopupCard({ url, audioUrl, location, timeAgo }: PopupCardProps) {
     const audioContextRef = useRef<AudioContext | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const sourceRef = useRef<MediaElementAudioSourceNode | null >(null);
     const [analyser, setAnalyser] = useState <AnalyserNode | null> (null);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [peaks, setPeaks] = useState <Array<{ min: number; max: number }>>([])
+
+    // Sets audio min and max peak values used to produce the audio waveform
+    async function getAudioPeaks () {
+      // fetch from cache if already computed
+      if (waveFormCaches.has(audioUrl)) {
+        setPeaks(waveFormCaches.get(audioUrl));
+        return;
+      }
+
+      try {
+        const res = await fetch(audioUrl);
+        if (!audioContextRef.current) return;
+
+        const buffer = await audioContextRef.current.decodeAudioData(await res.arrayBuffer());
+        const channelData = buffer.getChannelData(0);
+        if (!channelData || channelData.length === 0) return;
+
+        const bucketCount = Math.max(1, Math.round(300 * devicePixelRatio));
+        const localPeaks = computePeaks(channelData, bucketCount);
+        if (localPeaks.length === 0) return;
+
+        setPeaks(localPeaks);
+        waveFormCaches.set(audioUrl, localPeaks);
+      } catch (err: any) {
+        console.log(`Unable to fetch audio file, ${err.message}`);
+      }
+    }
+
 
     useEffect(() => {
         // init context and audio ref if none
         if (!audioContextRef.current) audioContextRef.current = new AudioContext();
         if (!audioRef.current) audioRef.current = new Audio(audioUrl);
-        // create a local analyser
-        let local = audioContextRef.current.createAnalyser();
+        // local analyser
+        let local;
 
         if (!sourceRef.current) {
             sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
             // connect audio to analyser
+            local = audioContextRef.current.createAnalyser();
             sourceRef.current.connect(local);
             local.connect(audioContextRef.current.destination);
             // move to state 
@@ -34,10 +67,10 @@ export default function PopupCard({ url, audioUrl, location, timeAgo }: PopupCar
         }
 
         const handleEnded = () => setIsPlaying(false);
-
+        getAudioPeaks();
         // when audio stops playing
         audioRef.current?.addEventListener('ended', handleEnded);
-
+            
         // clean up
         return () => {
         audioRef.current?.removeEventListener('ended', handleEnded);
@@ -47,7 +80,6 @@ export default function PopupCard({ url, audioUrl, location, timeAgo }: PopupCar
         audioRef.current = null;
         sourceRef.current = null;
         audioContextRef.current = null;
-        
         }
         // when a different popup is rendered
     }, [audioUrl]);
@@ -62,7 +94,9 @@ export default function PopupCard({ url, audioUrl, location, timeAgo }: PopupCar
             await audioContextRef.current.resume();
         }
 
-        await audioRef.current?.play()
+        if (!audioRef.current) return; 
+
+        audioRef.current.play()
         .then(() => setIsPlaying(true));
     }
 
@@ -78,7 +112,7 @@ export default function PopupCard({ url, audioUrl, location, timeAgo }: PopupCar
                     <button onClick = {handlePause}>Pause</button>
                 )}
             </div>
-            {analyser && <AudioWave analyserNode = {analyser} isPlaying = {isPlaying} />}
+            {analyser && peaks.length > 0 && <AudioWave peaks = {peaks} analyserNode = {analyser} isPlaying = {isPlaying} />}
             <div className={styles.cardMetadata}>
             <small>{location}</small>
             <small>{timeAgo}</small>
