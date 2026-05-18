@@ -127,7 +127,6 @@ type DrawWavesProps = {
     resizedPeaks:  Array<{min :number, max: number}>,
     barWidth: number,
     gap: number,
-    playedPercent: number,
     context: CanvasRenderingContext2D,
     radius: number
 }
@@ -143,7 +142,6 @@ export function drawWaves ({
     gap, 
     context, 
     radius,
-    playedPercent,
 } : DrawWavesProps) : void {
     if (!resizedPeaks.length) return;
     if (!Number.isFinite(cssHeight) || cssHeight <= 0) return;
@@ -171,15 +169,25 @@ export function drawWaves ({
     }
 }
 
+type DrawOverlayProps = {
+    cssHeight: number,
+    resizedPeaks:  Array<{min :number, max: number}>,
+    barWidth: number,
+    gap: number,
+    playedPercent: number,
+    context: CanvasRenderingContext2D,
+    radius: number
+}
+
 export function drawOverlay ({
     cssHeight, 
     resizedPeaks, 
     barWidth, 
-    gap, 
-    context, 
     playedPercent,
+    gap, 
+    context,
     radius,
-} : DrawWavesProps) : void {
+} : DrawOverlayProps) : void {
     if (!resizedPeaks.length) return;
     if (!Number.isFinite(cssHeight) || cssHeight <= 0) return;
     if (!Number.isFinite(barWidth) || barWidth <= 0) return;
