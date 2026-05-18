@@ -116,10 +116,18 @@ const AudioWave = forwardRef(function AudioWave(
     [cssWidth, cssHeight, resizedPeaks, barWidth, gap, radius]
   );
 
+  const handleClick = (click : React.MouseEvent<HTMLCanvasElement>) =>  {
+    const rect = overlayCanvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const clickedPixel = click.clientX - rect.left;
+    const fraction = clickedPixel / rect.width;
+    handleSkip(fraction);
+  }
+
   return (
     <div style={{ position: "relative" }}>
       <canvas className={styles.canvas} ref={baseCanvasRef} />
-      <canvas className={styles.playCanvas} ref={overlayCanvasRef} />
+      <canvas className={styles.playCanvas} ref={overlayCanvasRef} onClick={handleClick}/>
     </div>
   );
 });

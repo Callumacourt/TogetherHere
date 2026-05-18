@@ -119,13 +119,13 @@ export default function useAudioPlayer(audioUrl: string) {
         setIsPlaying(false);
     }
 
-    function handleSkip(skipTime: number) {
+    function handleSkip(audioFraction: number) {
         const audio = audioRef.current;
         if (!audio || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
 
-        const safeTime = Math.max(0, Math.min(skipTime, audio.duration));
-        audio.currentTime = safeTime;
-        setPlaybackPercent(safeTime / audio.duration);
+        const time = audioFraction * audio.duration;
+        audio.currentTime = time;
+        setPlaybackPercent(audioFraction);
     }
 
     return { isPlaying, peaks, playbackPercent, waveRef, handlePlay, handlePause, handleSkip };
