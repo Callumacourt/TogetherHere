@@ -8,3 +8,14 @@
     width: 5vw;
     background-color: red;
 }
+
+.mapZoom {
+  display: none;
+}
+
+/* Show on desktop screens */
+@media (min-width: 1008px) {
+  .mapZoom {
+    display: block;
+  }
+}

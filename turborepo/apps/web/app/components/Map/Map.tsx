@@ -1,12 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import Map, { Popup, Marker } from "react-map-gl/mapbox";
+import { useEffect, useState } from "react";
+import Map, { Popup, Marker, NavigationControl } from "react-map-gl/mapbox"; 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import PopupCard from "./Popup/PopupCard"
 import WaveForm from "./WaveForm/WaveForm";
 
 export default function MapComponent() {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width:1008px)");
+    const onChange = (e: MediaQueryListEvent | MediaQueryList) => setIsDesktop(Boolean("matches" in e ? e.matches : mq.matches));
+    setIsDesktop(mq.matches);
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+    else mq.addListener(onChange);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", onChange as any);
+      else mq.removeListener(onChange as any);
+    };
+  }, []);
+
   const bounds: mapboxgl.LngLatBoundsLike = [
     [-3.195, 51.47],
     [-3.17, 51.495],
@@ -52,7 +66,6 @@ export default function MapComponent() {
       audioUrl: "/audio/testAudio.mp3",
       imgUrl: "/mapImg3.jpg",
     },
-
   ]
 
   return (
@@ -69,6 +82,10 @@ export default function MapComponent() {
             minZoom={11}
             maxZoom={17}
     >
+      {isDesktop && (
+          <NavigationControl position="top-right" showCompass={false} />
+      )}
+
       {mockData.map((data) => (
         <Marker 
           key={data.id} 

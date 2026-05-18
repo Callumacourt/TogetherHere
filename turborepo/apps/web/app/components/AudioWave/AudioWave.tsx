@@ -79,8 +79,7 @@ const AudioWave = forwardRef(function AudioWave(
     resizeCanvasToDisplay(overlay, overlayCtx, cssWidth, cssHeight);
 
     baseCtx.clearRect(0, 0, cssWidth, cssHeight);
-    baseCtx.fillStyle = "rgb(0,0,0)";
-    baseCtx.fillRect(0, 0, cssWidth, cssHeight);
+  
 
     drawWaves({ cssHeight, resizedPeaks, barWidth, gap, context: baseCtx, radius });
   }, [cssWidth, cssHeight, resizedPeaks]);

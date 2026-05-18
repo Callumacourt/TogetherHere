@@ -1,5 +1,5 @@
 .popupCard {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: transparent; 
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -14,8 +14,6 @@
   object-fit: cover; 
   filter: grayscale(20%) contrast(1.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  border-top-left-radius: 30px;
-  border-top-right-radius: 30px;
 }
 
 .cardContent {
@@ -29,6 +27,7 @@
 
 .cardMetadata {
   display: flex;
+  margin-top: 2vh;
   justify-content: space-between;
 }
 
