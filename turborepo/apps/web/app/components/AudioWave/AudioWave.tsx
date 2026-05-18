@@ -1,94 +1,109 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import styles from "./AudioWave.module.css";
-import { drawWaves, resizeCanvasToDisplay, resizePeaks } from "../../utils/drawingUtils";
+import { drawWaves, resizeCanvasToDisplay, resizePeaks, drawOverlay } from "../../utils/drawingUtils";
 
 type AudioWaveProps = {
+    playedPercent: number,
+    handleSkip: (time: number) => void,
     peaks: Array<{min : number, max: number}>,
-    analyserNode: AnalyserNode | null,
     isPlaying: boolean,
 }
 
-export default function AudioWave ({peaks, analyserNode, isPlaying} : AudioWaveProps) {
-    
-    const canvasRef = useRef <HTMLCanvasElement> (null);
-    const ctxRef = useRef <CanvasRenderingContext2D | null> (null);
-    const rafID = useRef<number> (0);
+export default function AudioWave ({playedPercent, handleSkip, peaks, isPlaying} : AudioWaveProps) {
+    const baseCanvasRef = useRef<HTMLCanvasElement>(null);
+    const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
+    const baseCtxRef = useRef<CanvasRenderingContext2D | null>(null);
+    const overlayCtxRef = useRef<CanvasRenderingContext2D | null>(null);
+
     const [cssWidth, setCssWidth] = useState(0);
     const [cssHeight, setCssHeight] = useState(0);
-    
-    // get real dom dimensions
+
+    const barWidth = 2;
+    const gap = 3;
+    const radius = barWidth / 2;
+
+    const resizedPeaks = useMemo(() => {
+        return resizePeaks({ peaks, cssWidth, barWidth, gap });
+    }, [peaks, cssWidth]);
+
     useLayoutEffect(() => {
+        const canvas = baseCanvasRef.current;
+        if (!canvas) return;
+
         const observer = new ResizeObserver((entries) => {
-            if (!canvasRef.current) return;
-            if (!entries[0]) return;
-            setCssWidth(entries[0].contentRect.width);
-            setCssHeight(entries[0].contentRect.height);
-            console.log('calling')
-        })
+            const entry = entries[0];
+            if (!entry) return;
 
-        if (canvasRef.current === null) return;
-        observer.observe(canvasRef.current);
-        return () => {
-            observer.disconnect();
-        }
-    }, [])
+            setCssWidth(entry.contentRect.width);
+            setCssHeight(entry.contentRect.height);
+        });
 
+        observer.observe(canvas);
+
+        return () => observer.disconnect();
+    }, []);
+
+    // Draw base canvas
     useEffect(() => {
-        if (!canvasRef.current) return;
-        if (!ctxRef.current) ctxRef.current = canvasRef.current.getContext("2d");
-        if (!ctxRef.current) return;
-        if (!analyserNode) return;
+        const canvas = baseCanvasRef.current;
+        if (!canvas) return;
 
-        resizeCanvasToDisplay(canvasRef.current, ctxRef.current, cssWidth, cssHeight);
-
-        const barWidth = 2;
-        const gap = 3;
-        const radius = barWidth / 2;
-
-        const resizedPeaks = resizePeaks({peaks, cssWidth, barWidth, gap});
-
-        function drawBase() {
-            const context = ctxRef.current;
-            if (!context) return;
-            if (!canvasRef.current) return;
-            if (!resizedPeaks.length) return;
-            context.fillStyle = "rgb(0,0,0)";
-            context.fillRect(0,0, cssWidth, cssHeight)
-            drawWaves({cssHeight, resizedPeaks, barWidth, gap, context, radius});
+        if (!baseCtxRef.current) {
+            baseCtxRef.current = canvas.getContext("2d");
         }
 
-        drawBase();
+        const context = baseCtxRef.current;
+        if (!context) return;
 
-        }, [peaks, cssWidth, cssHeight, analyserNode])
-    
+        resizeCanvasToDisplay(canvas, context, cssWidth, cssHeight);
 
-        // live drawing - when playing audio
-        /*function draw () {
-            analyserNode.getByteFrequencyData(dataArray)
-            const context = ctxRef.current;
-            if (!context) return;
-            if (!canvasRef.current) return;
-            context.fillStyle = "rgb(200,200,200)";
-            context.fillRect(0,0, cssWidth.current, cssHeight.current)
+        context.clearRect(0, 0, cssWidth, cssHeight);
+        context.fillStyle = "rgb(0,0,0)";
+        context.fillRect(0, 0, cssWidth, cssHeight);
 
-            const barWidth = (100 / bufferLength) * 2.5;
-            let barHeight;
-            let x = 0;
+        drawWaves({
+            cssHeight,
+            resizedPeaks,
+            barWidth,
+            gap,
+            context,
+            radius,
+            playedPercent,
+        });
+    }, [cssWidth, cssHeight, resizedPeaks, playedPercent]);
 
-            for (let i = 0; i < bufferLength; i++) {
-                barHeight = dataArray[i];
-                context.fillStyle = `rgb(${barHeight + 100} 50 50)`;
-                context.fillRect(x, 100 - barHeight / 2, barWidth, barHeight / 2);
-                x += barWidth + 1;
-                }
-            }
+    // Draw live canvas
+    useEffect(() => {
+        const canvas = overlayCanvasRef.current;
+        if (!canvas) return;
 
-            rafID.current = requestAnimationFrame(draw);
-            */
+        if (!overlayCtxRef.current) {
+            overlayCtxRef.current = canvas.getContext("2d");
+        }
+
+        const context = overlayCtxRef.current;
+        if (!context) return;
+
+        resizeCanvasToDisplay(canvas, context, cssWidth, cssHeight);
+        context.clearRect(0, 0, cssWidth, cssHeight);
+
+        drawOverlay({
+            cssHeight,
+            playedPercent,
+            resizedPeaks,
+            barWidth,
+            gap,
+            context,
+            radius,
+        });
+    }, [playedPercent, cssWidth, cssHeight, resizedPeaks]);
 
     return (
-        <canvas className = {styles.canvas} ref = {canvasRef}/>
-    )
+        <div style={{ position: "relative" }}>
+            <canvas className={styles.canvas} ref={baseCanvasRef} />
+            <canvas className={styles.playCanvas} ref={overlayCanvasRef} />
+        </div>
+    );
 }

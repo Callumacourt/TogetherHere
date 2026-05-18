@@ -127,6 +127,7 @@ type DrawWavesProps = {
     resizedPeaks:  Array<{min :number, max: number}>,
     barWidth: number,
     gap: number,
+    playedPercent: number,
     context: CanvasRenderingContext2D,
     radius: number
 }
@@ -142,27 +143,85 @@ export function drawWaves ({
     gap, 
     context, 
     radius,
+    playedPercent,
 } : DrawWavesProps) : void {
-    if (!resizedPeaks.length) throw new Error("No resized peaks array");
+    if (!resizedPeaks.length) return;
     if (!Number.isFinite(cssHeight) || cssHeight <= 0) return;
     if (!Number.isFinite(barWidth) || barWidth <= 0) return;
     if (!Number.isFinite(gap) || gap < 0) return;
     if (!Number.isFinite(radius) || radius < 0) return;
 
     const center = cssHeight / 2;
-    context.fillStyle = "rgb(255,255,255)";
+    context.fillStyle = "rgb(77, 77, 77)";
 
     for (let i = 0; i < resizedPeaks.length; i += 1) {
         const x = i * (barWidth + gap);
         const wave = resizedPeaks[i];
         
-        if (!wave) continue
+        if (!wave) continue;
+        
         const yTop = center - (wave.max * center);
         const yBottom = center - (wave.min * center);
         const height = Math.max(2, yBottom - yTop);
         const safeRadius = Math.min(radius, barWidth / 2, height / 2);
+        
         context.beginPath();
         context.roundRect(x, yTop, barWidth, height, safeRadius);
         context.fill();
     }
+}
+
+export function drawOverlay ({
+    cssHeight, 
+    resizedPeaks, 
+    barWidth, 
+    gap, 
+    context, 
+    playedPercent,
+    radius,
+} : DrawWavesProps) : void {
+    if (!resizedPeaks.length) return;
+    if (!Number.isFinite(cssHeight) || cssHeight <= 0) return;
+    if (!Number.isFinite(barWidth) || barWidth <= 0) return;
+    if (!Number.isFinite(gap) || gap < 0) return;
+    if (!Number.isFinite(radius) || radius < 0) return;
+    if (!Number.isFinite(playedPercent)) return;
+
+    const center = cssHeight / 2;
+    context.fillStyle = "rgb(255, 255, 255)";
+
+    const safePlayedPercent = Math.max(0, Math.min(1, playedPercent));
+    const totalWidth = resizedPeaks.length * (barWidth + gap) - gap;
+    const playedPixels = totalWidth * safePlayedPercent;
+
+    // Draw filled bars up to played position
+    for (let i = 0; i < resizedPeaks.length; i++) {
+        const x = i * (barWidth + gap);
+        const barEndX = x + barWidth;
+
+        // Stop if we've passed the played position
+        if (x > playedPixels) break;
+
+        const wave = resizedPeaks[i];
+        if (!wave) continue;
+
+        const yTop = center - (wave.max * center);
+        const yBottom = center - (wave.min * center);
+        const height = Math.max(2, yBottom - yTop);
+        const safeRadius = Math.min(radius, barWidth / 2, height / 2);
+
+        context.beginPath();
+        context.roundRect(x, yTop, barWidth, height, safeRadius);
+        context.fill();
+    }
+
+    // Draw a moving line at the play position
+    context.strokeStyle = "rgba(255, 255, 255, 0.8)";
+    context.lineWidth = 3;
+    context.lineCap = "round";
+
+    context.beginPath();
+    context.moveTo(playedPixels, 0);
+    context.lineTo(playedPixels, cssHeight);
+    context.stroke();
 }
