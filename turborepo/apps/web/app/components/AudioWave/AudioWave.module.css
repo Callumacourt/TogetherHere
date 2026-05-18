@@ -1,0 +1,8 @@
+.canvas {
+  display: block;
+  width: 100%;
+  height: 48px;            /* tune this value */
+  background-color: inherit; /* let the popup card color show through */
+  border-radius: 6px;      /* optional, matches card rounding */
+  box-sizing: border-box;
+}

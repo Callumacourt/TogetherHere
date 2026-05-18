@@ -103,16 +103,18 @@ export default function PopupCard({ url, audioUrl, location, timeAgo }: PopupCar
 
     return (
         <div className={styles.popupCard}>
-        <Image src={url} alt="" width={2688} height={4032} />
+        <Image className = {styles.cardImg} src={url} alt="" width={2688} height={4032} />
         <div className={styles.cardContent}>
-            <div className={styles.playBtn}>
-                {isPlaying === false ? (
-                    <button onClick = {handlePlay}>Play</button>
-                ) : (
-                    <button onClick = {handlePause}>Pause</button>
-                )}
+            <div className={styles.mediaSection}>
+                <div className={styles.playBtn}>
+                    {isPlaying === false ? (
+                        <button onClick = {handlePlay}><Image width={48} height={48} alt="" src={'/icons/play.svg'}/></button>
+                    ) : (
+                        <button onClick = {handlePause}><Image width={48} height={48} alt="" src={'/icons/pause.svg'}/></button>
+                    )}
+                </div>
+                {analyser && peaks.length > 0 && <AudioWave peaks = {peaks} analyserNode = {analyser} isPlaying = {isPlaying} />}
             </div>
-            {analyser && peaks.length > 0 && <AudioWave peaks = {peaks} analyserNode = {analyser} isPlaying = {isPlaying} />}
             <div className={styles.cardMetadata}>
             <small>{location}</small>
             <small>{timeAgo}</small>

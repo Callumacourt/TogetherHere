@@ -7,7 +7,7 @@
     flex: 1;
 }
 
-.popupCard img {
+.cardImg {
   height: 250px;
   flex-shrink: 0;
   width: 100%;
@@ -30,6 +30,29 @@
 .cardMetadata {
   display: flex;
   justify-content: space-between;
+}
+
+.mediaSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.playBtn button {
+  flex: 0 0 auto;
+  width: 48px;
+  border: 0px;
+  height: 48px;
+  cursor: pointer;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playBtn img {
+  padding-bottom: 0.9vh;
+  padding-top: 0.9vh;
 }
 
 /* Removing default mapbox popup styling */

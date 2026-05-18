@@ -1,94 +1,68 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import styles from "./AudioWave.module.css";
+import { drawWaves, resizeCanvasToDisplay, resizePeaks } from "../../utils/drawingUtils";
 
 type AudioWaveProps = {
     peaks: Array<{min : number, max: number}>,
-    analyserNode: AnalyserNode,
+    analyserNode: AnalyserNode | null,
     isPlaying: boolean,
 }
 
 export default function AudioWave ({peaks, analyserNode, isPlaying} : AudioWaveProps) {
     
-    const canvasRef = useRef <HTMLCanvasElement | null> (null);
+    const canvasRef = useRef <HTMLCanvasElement> (null);
     const ctxRef = useRef <CanvasRenderingContext2D | null> (null);
     const rafID = useRef<number> (0);
-    let cssWidth = useRef<number>(0);
-    let cssHeight = useRef<number>(0);
+    const [cssWidth, setCssWidth] = useState(0);
+    const [cssHeight, setCssHeight] = useState(0);
     
     // get real dom dimensions
     useLayoutEffect(() => {
-        if (!canvasRef.current) return;
-        cssWidth.current = canvasRef.current.clientWidth;
-        cssHeight.current = canvasRef.current.clientHeight;
+        const observer = new ResizeObserver((entries) => {
+            if (!canvasRef.current) return;
+            if (!entries[0]) return;
+            setCssWidth(entries[0].contentRect.width);
+            setCssHeight(entries[0].contentRect.height);
+            console.log('calling')
+        })
+
+        if (canvasRef.current === null) return;
+        observer.observe(canvasRef.current);
+        return () => {
+            observer.disconnect();
+        }
     }, [])
 
     useEffect(() => {
-        if (!canvasRef.current) return
-        if (!ctxRef.current) ctxRef.current = canvasRef.current.getContext("2d")
+        if (!canvasRef.current) return;
+        if (!ctxRef.current) ctxRef.current = canvasRef.current.getContext("2d");
         if (!ctxRef.current) return;
         if (!analyserNode) return;
 
-        analyserNode.fftSize = 256;
-        const bufferLength = analyserNode.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        
-        const dpr = window.devicePixelRatio || 1;
-        canvasRef.current.width = Math.round(cssWidth.current * dpr);
-        canvasRef.current.height = Math.round(cssHeight.current * dpr);
-        canvasRef.current.style.width = `${cssWidth.current}px`;
-        canvasRef.current.style.height = `${cssHeight.current}px`
-        ctxRef.current.setTransform(1,0,0,1,0,0)
-        ctxRef.current.scale(dpr, dpr);
+        resizeCanvasToDisplay(canvasRef.current, ctxRef.current, cssWidth, cssHeight);
 
-        const barWidth = 3;
+        const barWidth = 2;
         const gap = 3;
         const radius = barWidth / 2;
 
-
-        const targetBucketCount = Math.round(cssWidth.current / (barWidth + gap))
-        const remappedArray = [];
-        const p = peaks.length;
-        if (p === 0) return;
-        for (let col = 0; col < targetBucketCount; col+=1) {
-            const start = Math.floor((col * p)  / targetBucketCount);
-            let end = Math.floor((col + 1) * p / targetBucketCount);
-            if (end === start) end = Math.min(p, start + 1);
-            let min = Infinity;
-            let max = -Infinity
-            for (let j = start; j < end; j+=1) {
-                if (peaks[j].min < min) min = peaks[j].min;
-                if (peaks[j].max > max) max = peaks[j].max;
-            }
-            if (min === Infinity) min = 0;
-            if (max === -Infinity) max = 0; 
-            remappedArray.push({min : min, max: max});
-        }
+        const resizedPeaks = resizePeaks({peaks, cssWidth, barWidth, gap});
 
         function drawBase() {
             const context = ctxRef.current;
             if (!context) return;
             if (!canvasRef.current) return;
+            if (!resizedPeaks.length) return;
             context.fillStyle = "rgb(0,0,0)";
-            context.fillRect(0,0, cssWidth.current, cssHeight.current)
-            const center = cssHeight.current / 2;
-
-            for (let i = 0; i < remappedArray.length; i += 1) {
-                const x = i * (barWidth + gap);
-                const yTop = center - (remappedArray[i].max * center);
-                const yBottom = center - (remappedArray[i].min * center);
-                const height = Math.max(2, yBottom - yTop);
-                context.fillStyle = "rgb(255,255,255)";
-                context.beginPath();
-                context.roundRect(x, yTop, barWidth, height, radius);
-                context.fill();
-            }
-
+            context.fillRect(0,0, cssWidth, cssHeight)
+            drawWaves({cssHeight, resizedPeaks, barWidth, gap, context, radius});
         }
 
         drawBase();
 
+        }, [peaks, cssWidth, cssHeight, analyserNode])
+    
 
         // live drawing - when playing audio
         /*function draw () {
@@ -114,14 +88,7 @@ export default function AudioWave ({peaks, analyserNode, isPlaying} : AudioWaveP
             rafID.current = requestAnimationFrame(draw);
             */
 
-        return () => {
-            cancelAnimationFrame(rafID.current);
-        }
-    }, [analyserNode, peaks])
-    
     return (
-        <canvas id="canvas" ref = {canvasRef} width={300} height={150}>
-        
-        </canvas>
+        <canvas className = {styles.canvas} ref = {canvasRef}/>
     )
 }
