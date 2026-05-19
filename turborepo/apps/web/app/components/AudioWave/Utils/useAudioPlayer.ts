@@ -13,6 +13,7 @@ export default function useAudioPlayer(audioUrl: string) {
     const rafID = useRef<number>(0);
     const lastStateSync = useRef<number>(0);
     const waveRef = useRef<AudioWaveHandle | null>(null);
+    const [duration, setDuration] = useState(0);
 
     const [isPlaying, setIsPlaying] = useState(false);
     const [peaks, setPeaks] = useState<Peak[]>([]);
@@ -57,12 +58,17 @@ export default function useAudioPlayer(audioUrl: string) {
             setIsPlaying(false);
             setPlaybackPercent(1);
         };
-        audioRef.current.addEventListener("ended", onEnded);
+        
+        const audio = audioRef.current;
+        const onLoadedMetadata = () => setDuration(audio.duration);
+        audio.addEventListener("loadedmetadata", onLoadedMetadata);
+        audio.addEventListener("ended", onEnded);
 
         return () => {
-            audioRef.current?.removeEventListener("ended", onEnded);
+            audio.removeEventListener("ended", onEnded);
+            audio.removeEventListener("loadedmetadata", onLoadedMetadata);
             cancelAnimationFrame(rafID.current);
-            try { audioRef.current?.pause(); } catch {}
+            try { audio.pause(); } catch {}
             audioContextRef.current?.close().catch(() => {});
             audioRef.current = null;
             audioContextRef.current = null;
@@ -128,5 +134,5 @@ export default function useAudioPlayer(audioUrl: string) {
         setPlaybackPercent(audioFraction);
     }
 
-    return { isPlaying, peaks, playbackPercent, waveRef, handlePlay, handlePause, handleSkip };
+    return {duration, isPlaying, peaks, playbackPercent, waveRef, handlePlay, handlePause, handleSkip };
 }

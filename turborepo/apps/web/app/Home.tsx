@@ -33,7 +33,7 @@ export default function Home() {
           fill
           priority
           sizes="100vw"
-          quality={90}
+          quality={75}
         />
 
         <div className={styles.heroContent}>

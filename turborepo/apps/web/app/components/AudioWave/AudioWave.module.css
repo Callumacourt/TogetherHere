@@ -1,3 +1,7 @@
+.wrapper {
+  position: relative;
+}
+
 .canvas {
   display: block;
   width: 100%;
@@ -7,8 +11,19 @@
 
 .playCanvas {
   position: absolute;
+  cursor: pointer;
   top: 0;
   left: 0;
   width: 100%;
   height: 100px;
+  touch-action: none;
 }
+
+.playCanvas:hover {
+  cursor: grab;
+}
+
+.playCanvas.scrubbing {
+  cursor: grabbing;
+}
+

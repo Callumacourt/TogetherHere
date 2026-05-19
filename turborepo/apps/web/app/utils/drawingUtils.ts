@@ -1,3 +1,9 @@
+export function formatTime(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+}
+
 /**
  * Matches CSS to internal pixel size so canvas scales properly
  */
@@ -205,9 +211,6 @@ export function drawOverlay ({
     // Draw filled bars up to played position
     for (let i = 0; i < resizedPeaks.length; i++) {
         const x = i * (barWidth + gap);
-        const barEndX = x + barWidth;
-
-        // Stop if we've passed the played position
         if (x > playedPixels) break;
 
         const wave = resizedPeaks[i];

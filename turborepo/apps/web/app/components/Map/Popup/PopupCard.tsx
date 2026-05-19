@@ -11,7 +11,27 @@ type PopupCardProps = {
 };
 
 export default function PopupCard({ url, audioUrl, location, timeAgo }: PopupCardProps) {
-    const { isPlaying, peaks, playbackPercent, waveRef, handlePlay, handlePause, handleSkip } = useAudioPlayer(audioUrl);
+    const player = useAudioPlayer(audioUrl);
+
+    // Render a lightweight skeleton while player initialises
+    if (!player) {
+        return (
+            <div className={styles.popupCard}>
+                <div className={styles.cardImg} style={{background: "rgba(255,255,255,0.03)", height: 250}} />
+                <div className={styles.cardContent}>
+                    <div className={styles.mediaSection}>
+                        <div style={{width:48, height:48, background:"rgba(255,255,255,0.04)", borderRadius:8}} />
+                        <div style={{flex:1, height:56, marginLeft:12, background:"rgba(255,255,255,0.02)"}} />
+                    </div>
+                    <div className={styles.cardMetadata}>
+                        <small>Loading…</small>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const { duration, isPlaying, peaks, playbackPercent, waveRef, handlePlay, handlePause, handleSkip } = player;
 
     return (
         <div className={styles.popupCard}>
@@ -32,11 +52,14 @@ export default function PopupCard({ url, audioUrl, location, timeAgo }: PopupCar
 
                     {peaks.length > 0 && (
                         <AudioWave
+                            duration={duration}
                             ref={waveRef}
                             playedPercent={playbackPercent}
-                            handleSkip={handleSkip}
-                            peaks={peaks}
                             isPlaying={isPlaying}
+                            handleSkip={handleSkip}
+                            handlePause={handlePause}
+                            handlePlay={handlePlay}
+                            peaks={peaks}
                         />
                     )}
                 </div>

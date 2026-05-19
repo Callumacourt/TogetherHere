@@ -15,13 +15,22 @@ import {
   resizeCanvasToDisplay,
   resizePeaks,
   drawOverlay,
+  formatTime,
 } from "../../utils/drawingUtils";
+import ScrubTooltip from "../ScrubTooltip/ScrubTooltip";
+
+const BAR_WIDTH = 2;
+const GAP = 3;
+const RADIUS = BAR_WIDTH / 2;
 
 type AudioWaveProps = {
   playedPercent: number;
-  handleSkip: (time: number) => void;
-  peaks: Array<{ min: number; max: number }>;
+  duration: number;
   isPlaying: boolean;
+  handleSkip: (fraction: number) => void;
+  handlePause: () => void;
+  handlePlay: () => void;
+  peaks: Array<{ min: number; max: number }>;
 };
 
 export type AudioWaveHandle = {
@@ -29,7 +38,7 @@ export type AudioWaveHandle = {
 };
 
 const AudioWave = forwardRef(function AudioWave(
-  { playedPercent, handleSkip, peaks, isPlaying }: AudioWaveProps,
+  { playedPercent, duration, isPlaying, handleSkip, handlePause, handlePlay, peaks }: AudioWaveProps,
   ref: React.Ref<AudioWaveHandle | null>
 ) {
   const baseCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -39,26 +48,24 @@ const AudioWave = forwardRef(function AudioWave(
 
   const [cssWidth, setCssWidth] = useState(0);
   const [cssHeight, setCssHeight] = useState(0);
+  const [scrubPercent, setScrubPercent] = useState<number | null>(null);
+  const isScrubbing = useRef(false);
+  const wasPlaying = useRef(false);
 
-  const barWidth = 2;
-  const gap = 3;
-  const radius = barWidth / 2;
-
-  const resizedPeaks = useMemo(() => {
-    return resizePeaks({ peaks, cssWidth, barWidth, gap });
-  }, [peaks, cssWidth, barWidth, gap]);
+  const resizedPeaks = useMemo(
+    () => resizePeaks({ peaks, cssWidth, barWidth: BAR_WIDTH, gap: GAP }),
+    [peaks, cssWidth]
+  );
 
   useLayoutEffect(() => {
     const canvas = baseCanvasRef.current;
     if (!canvas) return;
-
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
       if (!entry) return;
       setCssWidth(entry.contentRect.width);
       setCssHeight(entry.contentRect.height);
     });
-
     observer.observe(canvas);
     return () => observer.disconnect();
   }, []);
@@ -77,57 +84,111 @@ const AudioWave = forwardRef(function AudioWave(
 
     resizeCanvasToDisplay(base, baseCtx, cssWidth, cssHeight);
     resizeCanvasToDisplay(overlay, overlayCtx, cssWidth, cssHeight);
-
     baseCtx.clearRect(0, 0, cssWidth, cssHeight);
-  
-
-    drawWaves({ cssHeight, resizedPeaks, barWidth, gap, context: baseCtx, radius });
+    drawWaves({ cssHeight, resizedPeaks, barWidth: BAR_WIDTH, gap: GAP, context: baseCtx, radius: RADIUS });
   }, [cssWidth, cssHeight, resizedPeaks]);
 
   // Redraw overlay in response to prop changes (initial mount, skip while paused)
   useEffect(() => {
     const canvas = overlayCanvasRef.current;
     if (!canvas) return;
-
     if (!overlayCtxRef.current) overlayCtxRef.current = canvas.getContext("2d");
     const ctx = overlayCtxRef.current;
     if (!ctx) return;
-
     ctx.clearRect(0, 0, cssWidth, cssHeight);
-    drawOverlay({ cssHeight, playedPercent, resizedPeaks, barWidth, gap, context: ctx, radius });
+    drawOverlay({ cssHeight, playedPercent, resizedPeaks, barWidth: BAR_WIDTH, gap: GAP, context: ctx, radius: RADIUS });
   }, [playedPercent, cssWidth, cssHeight, resizedPeaks]);
 
-  // RAFdriven overlay update which bypasses React render cycle for 60fps animation
+  // RAF-driven overlay update — bypasses React render cycle for 60fps animation
   useImperativeHandle(
     ref,
     () => ({
       update(p: number) {
+        if (isScrubbing.current) return;
         const canvas = overlayCanvasRef.current;
         if (!canvas) return;
-
         if (!overlayCtxRef.current) overlayCtxRef.current = canvas.getContext("2d");
         const ctx = overlayCtxRef.current;
         if (!ctx) return;
-
         ctx.clearRect(0, 0, cssWidth, cssHeight);
-        drawOverlay({ cssHeight, playedPercent: p, resizedPeaks, barWidth, gap, context: ctx, radius });
+        drawOverlay({ cssHeight, playedPercent: p, resizedPeaks, barWidth: BAR_WIDTH, gap: GAP, context: ctx, radius: RADIUS });
       },
     }),
-    [cssWidth, cssHeight, resizedPeaks, barWidth, gap, radius]
+    [cssWidth, cssHeight, resizedPeaks]
   );
 
-  const handleClick = (click : React.MouseEvent<HTMLCanvasElement>) =>  {
+  const getFraction = (pointer: React.PointerEvent<HTMLCanvasElement>): number | undefined => {
     const rect = overlayCanvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const clickedPixel = click.clientX - rect.left;
-    const fraction = clickedPixel / rect.width;
+    if (!rect) return undefined;
+    return Math.min(1, Math.max(0, (pointer.clientX - rect.left) / rect.width));
+  };
+
+  const handlePointerDown = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
+    isScrubbing.current = true;
+    wasPlaying.current = isPlaying;
+    if (isPlaying) handlePause();
+    if (styles.scrubbing) overlayCanvasRef.current?.classList.add(styles.scrubbing);
+    pointer.currentTarget.setPointerCapture(pointer.pointerId);
+  };
+
+  const handlePointerMove = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!isScrubbing.current) return;
+    const fraction = getFraction(pointer);
+    if (fraction === undefined) return;
+    setScrubPercent(fraction);
+    const ctx = overlayCtxRef.current;
+    if (!ctx) return;
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+    drawOverlay({ cssHeight, playedPercent: fraction, resizedPeaks, barWidth: BAR_WIDTH, gap: GAP, context: ctx, radius: RADIUS });
+  };
+
+  const handlePointerUp = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
+    isScrubbing.current = false;
+    if (styles.scrubbing) overlayCanvasRef.current?.classList.remove(styles.scrubbing);
+    const fraction = getFraction(pointer);
+    if (fraction === undefined) return;
     handleSkip(fraction);
-  }
+    if (wasPlaying.current) handlePlay();
+    wasPlaying.current = false;
+    setScrubPercent(null);
+  };
+
+  const handlePointerCancel = () => {
+    isScrubbing.current = false;
+    wasPlaying.current = false;
+    if (styles.scrubbing) overlayCanvasRef.current?.classList.remove(styles.scrubbing);
+    setScrubPercent(null);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+    if (!duration) return;
+    const step = 5 / duration;
+    if (e.key === "ArrowRight") handleSkip(Math.min(1, playedPercent + step));
+    if (e.key === "ArrowLeft") handleSkip(Math.max(0, playedPercent - step));
+  };
+
+  const currentSeconds = (scrubPercent ?? playedPercent) * duration;
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className={styles.wrapper}>
       <canvas className={styles.canvas} ref={baseCanvasRef} />
-      <canvas className={styles.playCanvas} ref={overlayCanvasRef} onClick={handleClick}/>
+      <canvas
+        className={styles.playCanvas}
+        ref={overlayCanvasRef}
+        role="slider"
+        tabIndex={0}
+        aria-label="Audio playback position"
+        aria-valuemin={0}
+        aria-valuemax={Math.round(duration)}
+        aria-valuenow={Math.round(currentSeconds)}
+        aria-valuetext={`${formatTime(currentSeconds)} of ${formatTime(duration)}`}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+        onKeyDown={handleKeyDown}
+      />
+      <ScrubTooltip scrubPercent={scrubPercent} playedPercent={playedPercent} duration={duration} />
     </div>
   );
 });
