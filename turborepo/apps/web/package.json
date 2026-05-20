@@ -16,7 +16,8 @@
     "next": "16.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-map-gl": "^8.1.0"
+    "react-map-gl": "^8.1.0",
+    "resend": "^6.12.3"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",

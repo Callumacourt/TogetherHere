@@ -9,6 +9,7 @@ export default function Home() {
 
   const [ loading, setIsLoading ] = useState(false);
   const [ sent, setSent ] = useState(false);
+  const [ emailError, setEmailError ] = useState("");
 
   async function handleSubmit (e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -16,9 +17,22 @@ export default function Home() {
 
     setIsLoading(true);
     
-    // api call here
-    await new Promise((r) => setTimeout(r, 1200));
+    const email = new FormData(e.currentTarget).get("email");
+    const res = await fetch("/api/subscribe", {
+      method: "POST",
+      body: JSON.stringify({
+        email: email,
+      }),
+      headers: {
+        'Content-type': 'application.json',
+      }
+    });
 
+    if (!res.ok) {
+      setEmailError("Error sending email");
+      return;
+    }
+  
     setIsLoading(false);
     setSent(true);
   }
