@@ -1,8 +1,8 @@
 'use client'
 
-import styles from "./styles/Hero.module.css";
+import styles from "../styles/Hero.module.css";
 import Image from "next/image";
-import Map from "./components/Map/Map";
+import Map from "../components/Map/Map";
 import { useState } from "react";
 
 export default function Home() {
@@ -106,7 +106,7 @@ export default function Home() {
           alt="A person riding a bike through a city"
           width={500}
           height={650}
-          quality={95}
+          quality={75}
         />
         <small>Random Street. 12:54PM</small>
       </div>

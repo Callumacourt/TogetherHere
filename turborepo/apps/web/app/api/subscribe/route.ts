@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import cleanEmail from "./utils/cleanEmail";
+import cleanEmail from "../../../utils/cleanEmail";
 
 const resend = new Resend(process.env.RESEND_KEY);
 const segmentId = process.env.RESEND_SEGMENT_ID ?? "";
