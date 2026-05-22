@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Map, { Popup, Marker, NavigationControl } from "react-map-gl/mapbox"; 
+import Map, { Popup, Marker, NavigationControl } from "react-map-gl/mapbox";
 import 'mapbox-gl/dist/mapbox-gl.css';
+import styles from "./Map.module.css";
 import PopupCard from "./Popup/PopupCard"
 import WaveForm from "./WaveForm/WaveForm";
 
@@ -22,8 +23,8 @@ export default function MapComponent() {
   }, []);
 
   const bounds: mapboxgl.LngLatBoundsLike = [
-    [-3.195, 51.47],
-    [-3.17, 51.495],
+    [-3.204, 51.477],
+    [-3.165, 51.490],
   ];
   
   type Note = {
@@ -41,46 +42,49 @@ export default function MapComponent() {
   const mockData: Note[] = [
     {
       id: 1,
-      lat: 51.4790,
-      lon: -3.1750,
-      location: "The Hayes",
+      lat: 51.4837,
+      lon: -3.1759,
+      location: "Cardiff University",
       timeAgo: "12 minutes ago",
-      audioUrl: "/audio/testAudio.mp3",
+      audioUrl: "/audio/uniAudio.m4a",
       imgUrl: "/images/map/mapImg1.jpg",
     },
     {
       id: 2,
-      lat: 51.4815,
+      lat: 51.4816,
       lon: -3.1820,
-      location: "Cardiff Castle grounds",
+      location: "Cardiff Castle",
       timeAgo: "1 hour ago",
-      audioUrl: "/audio/testAudio.mp3",
+      audioUrl: "/audio/castleAudio.m4a",
       imgUrl: "/images/map/mapImg2.jpg",
     },
     {
       id: 3,
-      lat: 51.4760,
-      lon: -3.1900,
-      location: "Sophia Gardens riverside",
+      lat: 51.4854,
+      lon: -3.1917,
+      location: "Sophia Gardens Riverside",
       timeAgo: "Yesterday",
-      audioUrl: "/audio/testAudio.mp3",
+      audioUrl: "/audio/butePark.m4a",
       imgUrl: "/images/map/mapImg3.jpg",
     },
   ]
 
   return (
-    <Map 
+    <div className={styles.mapContainer}>
+    <Map
+        reuseMaps
         mapboxAccessToken= {process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
         maxBounds={bounds}
         initialViewState={
             {
-                longitude: -3.1791,
-                latitude: 51.4756,
-                zoom: 12.5
-            }}  
+                longitude: -3.1832,
+                latitude: 51.4836,
+                zoom: 14.5
+            }}
             mapStyle= "mapbox://styles/mapbox/dark-v11"
-            minZoom={11}
-            maxZoom={17}
+            minZoom={13.5}
+            maxZoom={18}
+            style={{ width: "100%", height: "100%" }}
     >
       {isDesktop && (
           <NavigationControl position="top-right" showCompass={false} />
@@ -117,5 +121,6 @@ export default function MapComponent() {
         </Popup>
       )}
     </Map>
+    </div>
   );
 }

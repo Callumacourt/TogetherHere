@@ -1,0 +1,54 @@
+.footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #000;
+  color: rgba(255, 255, 255, 0.52);
+  font-family: var(--font-sans, 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  padding: 18px 14px;
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+.links a {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.links a:hover,
+.links a:focus-visible {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+@media (min-width: 768px) {
+  .footer {
+    font-size: 0.8rem;
+    padding: 22px 20px;
+  }
+
+  .inner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .links {
+    gap: 16px;
+  }
+}

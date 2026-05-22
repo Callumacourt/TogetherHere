@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Sans, Inter, PT_Serif_Caption } from "next/font/google";
 import "./globals.css";
+import Footer from "../components/Footer/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,7 +34,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${ptSerifCaption.variable} ${instrumentSans.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

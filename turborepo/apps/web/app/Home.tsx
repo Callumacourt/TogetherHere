@@ -2,7 +2,8 @@
 
 import styles from "../styles/Hero.module.css";
 import Image from "next/image";
-import Map from "../components/Map/Map";
+import dynamic from "next/dynamic";
+const Map = dynamic(() => import("../components/Map/Map"), { ssr: false });
 import { useState } from "react";
 
 export default function Home() {
@@ -88,12 +89,12 @@ export default function Home() {
           )}
         </div>
       </section>
+      <section className = {styles.mapSection}>
+  <Map/>
+</section>
   <section className={styles.explanationSection}>
     <div className={styles.explanationContent}> 
-        <h2>We all have something to say</h2>
-          <p>
-            Every voice you walk past unheard
-          </p>
+        <h2>We each have something to say</h2>
         <div className={styles.explanationImgContainer}>
         <Image
           src="/images/hero/explanationImg.jpg"
@@ -103,18 +104,17 @@ export default function Home() {
           height={650}
           quality={75}
         />
-        <small>Random Street. 12:54PM</small>
+        <small>North Street. 12:54PM</small>
       </div>
           <p>
-            An experiment in spatial empathy hoping to 
-            visualise the sound of our collective 
-            living within our collective space. 
+            We're building an archive of the things we feel pinned to the exact
+            places where we felt them. A private diary scattered across public spaces.
           </p>
-        <button className={styles.cta2}>Drop A Note</button>
+          <p>
+              If you have a thought you want to leave behind before we launch
+          </p>
+        <button className={styles.cta2}>Leave it here</button>
     </div>
-</section>
-<section className = {styles.mapSection}>
-  <Map/>
 </section>
     </main>
   );
