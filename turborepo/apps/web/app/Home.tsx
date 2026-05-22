@@ -41,7 +41,7 @@ export default function Home() {
     <main className={styles.home}>
       <section className={styles.heroContainer}>
         <Image
-          src={"/heroImg.jpg"}
+          src={"/images/hero/heroImg.jpg"}
           className={styles.heroImg}
           alt="An urban street scene"
           fill
@@ -54,13 +54,11 @@ export default function Home() {
           <h1 className={styles.heroTitle}>Together. Here.</h1>
           <div className={styles.heroSubtitle}>
             <p>A digital archive of human presence</p>
-            <p className={styles.step1}>We are all here.</p>
-            <p className={styles.step2}>Together.</p>
           </div>
         </div>
 
         <div className={styles.emailSection}>
-          <h2 className={styles.emailHeader}>Register Interest</h2>
+          <h2 className={styles.emailHeader}>Early Access</h2>
           <form onSubmit={handleSubmit} className={styles.emailForm}>
             <div className={styles.inputWrapper}>
               <input
@@ -94,10 +92,7 @@ export default function Home() {
     <div className={styles.explanationContent}> 
         <h2>We all have something to say</h2>
           <p>
-            We want to create a digital map of human presence. Stand where a 
-            stranger stood and feel what they felt in their heart, feel that they are you.
-            Leave a note for the next person. About whatever you want. 
-            The city lives inside each of us.
+            Every voice you walk past unheard
           </p>
         <div className={styles.explanationImgContainer}>
         <Image
@@ -111,9 +106,9 @@ export default function Home() {
         <small>Random Street. 12:54PM</small>
       </div>
           <p>
-            TogetherHere is a non-profit experiment in spatial empathy hoping to bring people 
-            together and create a visualisation of our collective 
-            living mapped to our collective space. 
+            An experiment in spatial empathy hoping to 
+            visualise the sound of our collective 
+            living within our collective space. 
           </p>
         <button className={styles.cta2}>Drop A Note</button>
     </div>

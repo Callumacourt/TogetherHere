@@ -46,7 +46,7 @@ export default function MapComponent() {
       location: "The Hayes",
       timeAgo: "12 minutes ago",
       audioUrl: "/audio/testAudio.mp3",
-      imgUrl: "/mapImg1.jpg",
+      imgUrl: "/images/map/mapImg1.jpg",
     },
     {
       id: 2,
@@ -55,7 +55,7 @@ export default function MapComponent() {
       location: "Cardiff Castle grounds",
       timeAgo: "1 hour ago",
       audioUrl: "/audio/testAudio.mp3",
-      imgUrl: "/mapImg2.jpg",
+      imgUrl: "/images/map/mapImg2.jpg",
     },
     {
       id: 3,
@@ -64,7 +64,7 @@ export default function MapComponent() {
       location: "Sophia Gardens riverside",
       timeAgo: "Yesterday",
       audioUrl: "/audio/testAudio.mp3",
-      imgUrl: "/mapImg3.jpg",
+      imgUrl: "/images/map/mapImg3.jpg",
     },
   ]
 
