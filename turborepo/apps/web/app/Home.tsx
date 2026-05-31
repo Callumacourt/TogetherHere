@@ -5,11 +5,13 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 const Map = dynamic(() => import("../components/Map/Map"), { ssr: false });
 import { useState } from "react";
+import VoiceModal from "../components/VoiceNote/VoiceNoteModal";
 
 export default function Home() {
 
   const [ loading, setIsLoading ] = useState(false);
   const [ sent, setSent ] = useState(false);
+  const [ modalOpen, setModalOpen ] = useState(false);
   const [ emailError, setEmailError ] = useState("");
 
   async function handleSubmit (e: React.FormEvent<HTMLFormElement>) {
@@ -113,9 +115,14 @@ export default function Home() {
           <p>
               If you have a thought you want to leave behind before we launch
           </p>
-        <button className={styles.cta2}>Leave it here</button>
+        <button onClick={() => setModalOpen(true)} className={styles.cta2}>Leave it here</button>
     </div>
 </section>
+    {modalOpen && (
+      <div role="dialog" aria-modal = "true">
+        <VoiceModal onClose = {() => setModalOpen(false)}/>
+      </div>
+    )}
     </main>
   );
 }
