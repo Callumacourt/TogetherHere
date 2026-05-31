@@ -1,0 +1,52 @@
+.locationSection {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.modalContainer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1200px;
+    max-width: 90vw;
+    height: 95vh;
+    padding: 5vmin;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: #111;
+    border-radius: 20px;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.buttonRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.closeBtn, .prevBtn {
+    width: fit-content;
+    padding: 0;
+    background-color: transparent;
+    border: 0px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.closeBtn {
+    margin-left: auto;
+}
+
+
+.closeBtn:hover,
+.prevBtn:hover {
+    transition: opacity 160ms ease;
+    opacity: 0.7;
+}
+

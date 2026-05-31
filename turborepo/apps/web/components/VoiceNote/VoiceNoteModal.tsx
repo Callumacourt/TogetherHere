@@ -1,7 +1,8 @@
-import useVoiceRecorder from "./hooks/useVoiceRecorder";
 import LocationStep from "./steps/LocationStep";
+import useVoiceRecorder from "./hooks/useVoiceRecorder";
 import RecordStep from "./steps/RecordStep";
 import styles from "./VoiceNoteModal.module.css";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type Step = 'location' | 'record' | 'review';
@@ -13,7 +14,7 @@ export default function VoiceModal ({onClose} : Prop) {
     const [ step, setStep ] = useState<Step>('location');
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
 
-    const { audioBlob, micPermission, reset } = recorder;
+    const { audioBlob, isRecording, micPermission, reset, start, stop } = recorder;
     const audioURL : string | null = useMemo(() => audioBlob ? URL.createObjectURL(audioBlob) : null, [audioBlob])
 
     useEffect(() => {
@@ -33,24 +34,51 @@ export default function VoiceModal ({onClose} : Prop) {
         await fetch ('/api/voice-note', { method: 'POST', body: data });
     }
 
+    function handleReturn () {
+        if (step == 'record') {
+            setStep('location');
+        } else if (
+            step == 'review') {
+            setStep('record');
+        };
+    };
+
     function handleReset () {
         reset();
         setStep('record');
-    }
+    };
 
     return (
-        <div className = {styles.modalContainer}>  
-        <button onClick={onClose}></button>
-        {step === 'location' && (
-            <div className = {styles.locationSection}>
-                <h2>Where are you?</h2>
-                <LocationStep pin={pin} onPinChange={setPin} onConfirm={() => setStep('record')}/>
+        <div className={styles.modalContainer}>  
+          <div className={styles.buttonRow}>
+            {step !== 'location' && (
+            <button className={styles.prevBtn} onClick={handleReturn}>
+              <Image
+                src="/icons/white-arrow-left.svg"
+                width={32}
+                height={32}
+                alt="Back"
+              />
+            </button>
+            )}
+            <button className={styles.closeBtn} onClick={onClose}>
+              <Image
+                src="/icons/close-x.svg"
+                width={32}
+                height={32}
+                alt="Close"
+              />
+            </button>
+          </div>
+
+          {step === 'location' && (
+            <div className={styles.locationSection}>
+              <LocationStep pin={pin} onPinChange={setPin} onConfirm={() => setStep('record')}/>
             </div>
-        )}
-        {step === 'record' && (
+          )}
+          {step === 'record' && (
             <div className = {styles.recordSection}>
-                <h2>What's on your mind?</h2>
-                <RecordStep onConfirm={() => setStep('review')}/>
+                <RecordStep isRecording = {isRecording} audioBlob = {audioBlob} start = {start} stop = {stop} handleReset = {handleReset} onConfirm={() => setStep('review')}/>
                 {micPermission === 'denied' && (<p>Please allow microphone access to continue</p>)}
             </div>
         )}

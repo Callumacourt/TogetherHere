@@ -119,8 +119,8 @@ export default function Home() {
     </div>
 </section>
     {modalOpen && (
-      <div role="dialog" aria-modal = "true">
-        <VoiceModal onClose = {() => setModalOpen(false)}/>
+      <div role="dialog" aria-modal="true" className={styles.modalBackdrop}>
+        <VoiceModal onClose={() => setModalOpen(false)}/>
       </div>
     )}
     </main>

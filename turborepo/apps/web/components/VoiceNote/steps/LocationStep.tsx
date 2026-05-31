@@ -2,6 +2,7 @@ import { Map, Marker, NavigationControl, MapRef, MapInstance }from "react-map-gl
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import styles from "./LocationStep.module.css";
+import Image from "next/image";
 
 const SearchBox = dynamic(
     () => import("@mapbox/search-js-react").then(m => m.SearchBox),
@@ -47,6 +48,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
 
     return (
         <>
+        <div className = {styles.searchBoxContainer}>
         <SearchBox
             accessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN!}
             map={mapInstance}
@@ -57,6 +59,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
                 onPinChange({ lat, lng })
             }}
          />
+         </div>
          <div className={styles.mapContainer}>
          <Map
             ref = {mapRef}
@@ -88,7 +91,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
             {geoError && (
                 <>Please allow location permissions</>
             )}
-            <button type="button" onClick={onConfirm}>Next</button>
+            <button className = {styles.continueBtn} type="button" onClick={onConfirm}>Continue</button>
         </>
     )
 }
