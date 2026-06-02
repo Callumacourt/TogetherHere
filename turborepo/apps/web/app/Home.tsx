@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 const Map = dynamic(() => import("../components/Map/Map"), { ssr: false });
 import { useState } from "react";
 import VoiceModal from "../components/VoiceNote/VoiceNoteModal";
+import { AnimatePresence } from "motion/react";
 
 export default function Home() {
 
@@ -118,11 +119,13 @@ export default function Home() {
         <button onClick={() => setModalOpen(true)} className={styles.cta2}>Leave it here</button>
     </div>
 </section>
+  <AnimatePresence>
     {modalOpen && (
       <div role="dialog" aria-modal="true" className={styles.modalBackdrop}>
         <VoiceModal onClose={() => setModalOpen(false)}/>
       </div>
     )}
+    </AnimatePresence>
     </main>
   );
 }

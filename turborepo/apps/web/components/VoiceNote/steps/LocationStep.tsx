@@ -2,7 +2,7 @@ import { Map, Marker, NavigationControl, MapRef, MapInstance }from "react-map-gl
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import styles from "./LocationStep.module.css";
-import Image from "next/image";
+import type { Theme } from '@mapbox/search-js-web'
 
 const SearchBox = dynamic(
     () => import("@mapbox/search-js-react").then(m => m.SearchBox),
@@ -13,6 +13,18 @@ type Props = {
     pin: { lat: number, lng: number } | null,
     onPinChange: (pin: {lat: number, lng: number }) => void,
     onConfirm: () => void
+}
+
+const SearchTheme: Theme = {
+    variables: {
+        colorBackground: '#111',
+        colorText: '#ffffff',
+        colorBackgroundHover: '#222',
+        fontFamily: 'var(--font-inter)',
+        borderRadius: '8px',
+        border: '1px solid rgba(255,255,255,0.15)',
+        colorPrimary: '#ffffff',
+    }
 }
 
 export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
@@ -50,6 +62,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
         <>
         <div className = {styles.searchBoxContainer}>
         <SearchBox
+            theme={SearchTheme}
             accessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN!}
             map={mapInstance}
             onRetrieve={(result) => {
@@ -57,6 +70,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
                 if (!coords) return
                 const [lng, lat] = coords
                 onPinChange({ lat, lng })
+                mapRef.current?.flyTo({ center: [lng, lat], zoom: 15 })
             }}
          />
          </div>
@@ -80,6 +94,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
                         longitude={pin.lng}
                         latitude={pin.lat}
                         draggable
+                        color="black"
                         onDrag={(e) => onPinChange({ lat: e.lngLat.lat, lng: e.lngLat.lng})}
                     />
                 )}

@@ -14,8 +14,7 @@ export default function RecordStep ( { onConfirm } : Props) {
     const { audioBlob, isRecording, start, stop, reset } = useVoiceRecorder()
     return (
     <div className={styles.recordContainer}>
-    <h2 className={styles.title}>Where are you?</h2>
-      <div className = {styles.waveformContainer}/>
+      <div className={styles.waveformContainer}/>
         <div className={styles.btns}>
             <button type="button" onClick={isRecording ? stop : start}>
             {isRecording ? 'Stop' : 'Record'} 

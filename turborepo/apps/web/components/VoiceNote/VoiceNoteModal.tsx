@@ -4,6 +4,8 @@ import RecordStep from "./steps/RecordStep";
 import styles from "./VoiceNoteModal.module.css";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "motion/react";
+
 
 type Step = 'location' | 'record' | 'review';
 type Prop = { onClose: () => void }
@@ -49,7 +51,12 @@ export default function VoiceModal ({onClose} : Prop) {
     };
 
     return (
-        <div className={styles.modalContainer}>  
+        <motion.div
+          initial = {{x: -20, y: 20, opacity: 0}}
+          animate = {{x: 0, y: 0, opacity: 1}}
+          exit = {{x: -20, y: 20, opacity: 0}}
+          transition={{type: "tween", duration: 0.2, ease: "easeOut"}}
+          className={styles.modalContainer}>  
           <div className={styles.buttonRow}>
             {step !== 'location' && (
             <button className={styles.prevBtn} onClick={handleReturn}>
@@ -73,22 +80,35 @@ export default function VoiceModal ({onClose} : Prop) {
 
           {step === 'location' && (
             <div className={styles.locationSection}>
-              <LocationStep pin={pin} onPinChange={setPin} onConfirm={() => setStep('record')}/>
+              <h2 className={styles.stepTitle}>Where are you?</h2>
+              <LocationStep 
+                pin={pin}
+                onPinChange={setPin}
+                onConfirm={() => setStep('record')}/>
             </div>
           )}
           {step === 'record' && (
-            <div className = {styles.recordSection}>
-                <RecordStep isRecording = {isRecording} audioBlob = {audioBlob} start = {start} stop = {stop} handleReset = {handleReset} onConfirm={() => setStep('review')}/>
-                {micPermission === 'denied' && (<p>Please allow microphone access to continue</p>)}
+            <div className={styles.recordSection}>
+              <h2 className={styles.stepTitle}>What's on your mind?</h2>
+              <RecordStep 
+                isRecording={isRecording} 
+                audioBlob={audioBlob} 
+                start={start} stop={stop} 
+                handleReset={handleReset} 
+                onConfirm={() =>
+                setStep('review')}
+              />
+              {micPermission === 'denied' && (<p>Please allow microphone access to continue</p>)}
             </div>
-        )}
-        {step === 'review' && audioURL && (
-            <div className = {styles.reviewSection}>
-                <audio src={audioURL}/>
-                <button onClick={handleSubmit}>Post</button>
-                <button onClick={handleReset}>Re-record</button>
+          )}
+          {step === 'review' && audioURL && (
+            <div className={styles.reviewSection}>
+              <h2 className={styles.stepTitle}>How does it sound?</h2>
+              <audio src={audioURL}/>
+              <button onClick={handleSubmit}>Post</button>
+              <button onClick={handleReset}>Re-record</button>
             </div>
-        )}
-        </div>
+          )}
+        </motion.div>
     )
 }

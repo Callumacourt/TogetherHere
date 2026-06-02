@@ -10,6 +10,10 @@
     margin-top: 2vh;
 }
 
+.searchBoxContainer * {
+    color: white !important;
+}
+
 .continueBtn {
     width: fit-content;
     background-color: transparent;
@@ -24,4 +28,8 @@
 .continueBtn:hover {
     transition: opacity 160ms ease;
     opacity: 0.7;
+}
+
+.title {
+    padding-bottom: 3vh;
 }
