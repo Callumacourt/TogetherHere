@@ -16,7 +16,7 @@ export default function VoiceModal ({onClose} : Prop) {
     const [ step, setStep ] = useState<Step>('location');
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
 
-    const { audioBlob, isRecording, micPermission, reset, start, stop } = recorder;
+    const { audioBlob, isRecording, micPermission, stream, reset, start, stop } = recorder;
     const audioURL : string | null = useMemo(() => audioBlob ? URL.createObjectURL(audioBlob) : null, [audioBlob])
 
     useEffect(() => {
@@ -90,13 +90,14 @@ export default function VoiceModal ({onClose} : Prop) {
           {step === 'record' && (
             <div className={styles.recordSection}>
               <h2 className={styles.stepTitle}>What's on your mind?</h2>
-              <RecordStep 
-                isRecording={isRecording} 
-                audioBlob={audioBlob} 
-                start={start} stop={stop} 
-                handleReset={handleReset} 
-                onConfirm={() =>
-                setStep('review')}
+              <RecordStep
+                isRecording={isRecording}
+                stream={stream}
+                audioBlob={audioBlob}
+                start={start}
+                stop={stop}
+                handleReset={handleReset}
+                onConfirm={() => setStep('review')}
               />
               {micPermission === 'denied' && (<p>Please allow microphone access to continue</p>)}
             </div>

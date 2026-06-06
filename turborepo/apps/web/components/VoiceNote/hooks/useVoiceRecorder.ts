@@ -28,7 +28,7 @@ export default function useVoiceRecorder() {
             recorderRef.current = new MediaRecorder(streamRef.current);
             recorderRef.current.ondataavailable = ( e ) => chunksRef.current.push(e.data);
 
-            recorderRef.current.onstop = ( e ) => {
+            recorderRef.current.onstop = () => {
                 const blob = new Blob(chunksRef.current, { type: recorderRef.current!.mimeType })
                 setAudioBlob(blob);
                 setIsRecording(false);
@@ -59,5 +59,5 @@ export default function useVoiceRecorder() {
     }
 
 
-    return {  audioBlob, isRecording, micPermission, start: handleStartRecording, stop: handleStopRecording, reset}
+    return { audioBlob, isRecording, micPermission, stream: streamRef.current, start: handleStartRecording, stop: handleStopRecording, reset }
 }

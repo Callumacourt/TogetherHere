@@ -1,25 +1,28 @@
 import styles from "./RecordStep.module.css";
-import useVoiceRecorder from "../hooks/useVoiceRecorder";
+import LiveWaveForm from "../../LiveWaveForm/LiveWaveForm";
+
 
 type Props = {
     isRecording: boolean,
+    stream: MediaStream | null,
+    audioBlob: Blob | null,
     start: () => void,
     stop: () => void,
-    audioBlob : Blob | null,
     handleReset: () => void,
     onConfirm: () => void,
 }
 
-export default function RecordStep ( { onConfirm } : Props) {
-    const { audioBlob, isRecording, start, stop, reset } = useVoiceRecorder()
+export default function RecordStep({ isRecording, stream, audioBlob, start, stop, onConfirm }: Props) {
     return (
     <div className={styles.recordContainer}>
-      <div className={styles.waveformContainer}/>
+      <div className={styles.waveformContainer}>
+        {isRecording && stream && <LiveWaveForm stream={stream} isRecording={isRecording}/>}
+      </div>
         <div className={styles.btns}>
             <button type="button" onClick={isRecording ? stop : start}>
-            {isRecording ? 'Stop' : 'Record'} 
+                {isRecording ? 'Stop' : 'Record'}
             </button>
-            {!!audioBlob && (<button type="button" onClick={onConfirm}>Next</button>)}
+            {!!audioBlob && <button type="button" onClick={onConfirm}>Next</button>}
         </div>
     </div>
     )
