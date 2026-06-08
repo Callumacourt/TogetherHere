@@ -15,9 +15,8 @@ export default function VoiceModal ({onClose} : Prop) {
     const recorder = useVoiceRecorder();
     const [ step, setStep ] = useState<Step>('location');
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
-
-    const { audioBlob, isRecording, micPermission, stream, reset, start, stop } = recorder;
-    const audioURL : string | null = useMemo(() => audioBlob ? URL.createObjectURL(audioBlob) : null, [audioBlob])
+  
+    const audioURL : string | null = useMemo(() => recorder.audioBlob ? URL.createObjectURL(recorder.audioBlob) : null, [recorder.audioBlob])
 
     useEffect(() => {
         return () => {
@@ -29,7 +28,7 @@ export default function VoiceModal ({onClose} : Prop) {
 
     async function handleSubmit () {
         const data = new FormData();
-        data.append('audio', audioBlob!);
+        data.append('audio', recorder.audioBlob!);
         data.append('lat', String(pin!.lat));
         data.append('lon', String(pin!.lng));
 
@@ -46,7 +45,7 @@ export default function VoiceModal ({onClose} : Prop) {
     };
 
     function handleReset () {
-        reset();
+        recorder.reset();
         setStep('record');
     };
 
@@ -84,22 +83,20 @@ export default function VoiceModal ({onClose} : Prop) {
               <LocationStep 
                 pin={pin}
                 onPinChange={setPin}
-                onConfirm={() => setStep('record')}/>
+                onConfirm={() => pin && setStep('record')}/>
             </div>
           )}
           {step === 'record' && (
             <div className={styles.recordSection}>
               <h2 className={styles.stepTitle}>What's on your mind?</h2>
               <RecordStep
-                isRecording={isRecording}
-                stream={stream}
-                audioBlob={audioBlob}
-                start={start}
-                stop={stop}
-                handleReset={handleReset}
-                onConfirm={() => setStep('review')}
+                recorder = {recorder}
+                onConfirm={() => {
+                  recorder.stop();
+                  setStep('review');
+                }}
               />
-              {micPermission === 'denied' && (<p>Please allow microphone access to continue</p>)}
+              {recorder.micPermission === 'denied' && (<p>Please allow microphone access to continue</p>)}
             </div>
           )}
           {step === 'review' && audioURL && (

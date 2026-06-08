@@ -78,6 +78,7 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
         }
 
         audioCtx.resume().then(() => drawWaves());
+        
 
         return () => {
             if (rafRef.current) cancelAnimationFrame(rafRef.current);

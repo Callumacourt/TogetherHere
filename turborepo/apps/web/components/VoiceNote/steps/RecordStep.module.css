@@ -1,3 +1,32 @@
 .title {
     padding-bottom: 2vh;
 }
+
+.nextBtn, .controlBtn {
+    padding: 1vh 2vw;
+    border-radius: 25px;
+    border: 1px solid black;
+    font-size: 1.05rem;
+    font-family: "Space Grotesk", "Inter", "Avenir Next", "Segoe UI", sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.waveformContainer {
+    height: 500px;
+    width: 100%;
+}
+
+.btns {
+    display: flex;
+    gap: 1dvw;
+}
+
+.clipDuration {
+    display: flex;
+    justify-content: end;
+    font-size: 1.15rem;
+    padding-right: 1rem;
+}
