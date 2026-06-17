@@ -19,6 +19,9 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
     const mediaStreamRef = useRef<AudioNode | null>(null);
     const peaksRef = useRef<number[]>([])
 
+    const barWidth = 2;
+    const gap = 3;
+
     function drawWaves() {
         const ctx = canvasCtxRef.current;
         const canvas = canvasEleRef.current;
@@ -32,8 +35,7 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#ffffff';
         ctx.lineWidth = 2;
-        const barWidth = 2;
-        const gap = 3;
+
         const centerY = canvas.height / 2;
 
         let max = 0;
@@ -56,41 +58,72 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
         }
     }
 
+    function drawBase() {
+        const ctx = canvasCtxRef.current;
+        const canvas = canvasEleRef.current;
+        if (!ctx || !canvas) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffffff';
+        const centerY = canvas.height / 2;
+        const maxBars = Math.floor(canvas.width / (barWidth + gap))
+        for (let i = 0; i < maxBars; i++) {
+           const barHeight = 2;
+            ctx.fillRect(i * (barWidth + gap), centerY - barHeight / 2, barWidth, barHeight);
+        }
+    }
+    
+
     
     useEffect(() => {
-        const audioCtx = new AudioContext();
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 2048;
+        if (!audioContextRef.current) {
+            const audioContext = new AudioContext();
+            const analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            const source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
 
-        const source = audioCtx.createMediaStreamSource(stream);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
+            audioContextRef.current = audioContext;
+            analyserRef.current = analyser;
+            mediaStreamRef.current = source;
+            dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
 
-        audioContextRef.current = audioCtx;
-        analyserRef.current = analyser;
-        mediaStreamRef.current = source;
-        dataArrayRef.current = new Uint8Array(analyser.fftSize);
+            const canvas = canvasEleRef.current;
+            const ctx = canvasCtxRef.current;
+            if (canvas && ctx) {
+                resizeCanvasToDisplay(canvas, ctx, canvas.offsetWidth, canvas.offsetHeight);
+            };
 
-        const canvas = canvasEleRef.current;
-        const ctx = canvasCtxRef.current;
-        if (canvas && ctx) {
-            resizeCanvasToDisplay(canvas, ctx, canvas.offsetWidth, canvas.offsetHeight);
+            const audioCtx = audioContextRef.current!;
+
+            if (isRecording) {
+                audioContext.resume().then(() => {
+                    if (!rafRef.current) drawWaves();
+                }).catch(() => {});
+            } else if (!peaksRef.current) {
+                if (rafRef.current) {
+                    cancelAnimationFrame(rafRef.current);
+                    rafRef.current = null;
+                }
+                if (audioContext.state === 'running') audioContext.suspend().catch(() => {});
+                drawBase();
+            }
+            
+            return () => {
+                if (rafRef.current) {
+                    cancelAnimationFrame(rafRef.current);
+                    rafRef.current = null;
+                }
+                try { mediaStreamRef.current?.disconnect();} catch {() => {}};
+                try { analyserRef.current?.disconnect(); } catch{() => {}};
+                if (audioContextRef.current) {
+                    audioContextRef.current.close().catch(() => {})
+                    audioContextRef.current = null;
+                }
+                analyserRef.current = null;
+                mediaStreamRef.current = null;
+            }
         }
-
-        audioCtx.resume().then(() => drawWaves());
-        
-
-        return () => {
-            if (rafRef.current) cancelAnimationFrame(rafRef.current);
-            source.disconnect();
-            analyser.disconnect();
-            if (audioCtx.state !== 'closed') audioCtx.close();
-            audioContextRef.current = null;
-            analyserRef.current = null;
-            mediaStreamRef.current = null;
-            rafRef.current = null;
-        };
-    }, [stream]);
+    }, [stream, isRecording]);
 
 
     return (
