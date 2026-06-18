@@ -16,7 +16,7 @@ import {
   resizePeaks,
   drawOverlay,
   formatTime,
-} from "../../utils/drawingUtils";
+} from "./Utils/drawingUtils";
 import ScrubTooltip from "../ScrubTooltip/ScrubTooltip";
 
 const BAR_WIDTH = 2;
@@ -24,6 +24,7 @@ const GAP = 3;
 const RADIUS = BAR_WIDTH / 2;
 
 type AudioWaveProps = {
+  variant: 'recording' | 'map';
   playedPercent: number;
   duration: number;
   isPlaying: boolean;
@@ -38,9 +39,9 @@ export type AudioWaveHandle = {
 };
 
 const AudioWave = forwardRef(function AudioWave(
-  { playedPercent, duration, isPlaying, handleSkip, handlePause, handlePlay, peaks }: AudioWaveProps,
+  { variant, playedPercent, duration, isPlaying, handleSkip, handlePause, handlePlay, peaks }: AudioWaveProps,
   ref: React.Ref<AudioWaveHandle | null>
-) {
+  ) {
   const baseCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const baseCtxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -56,7 +57,8 @@ const AudioWave = forwardRef(function AudioWave(
     () => resizePeaks({ peaks, cssWidth, barWidth: BAR_WIDTH, gap: GAP }),
     [peaks, cssWidth]
   );
-
+  
+  // 
   useLayoutEffect(() => {
     const canvas = baseCanvasRef.current;
     if (!canvas) return;
@@ -96,10 +98,19 @@ const AudioWave = forwardRef(function AudioWave(
     const ctx = overlayCtxRef.current;
     if (!ctx) return;
     ctx.clearRect(0, 0, cssWidth, cssHeight);
-    drawOverlay({ cssHeight, playedPercent, resizedPeaks, barWidth: BAR_WIDTH, gap: GAP, context: ctx, radius: RADIUS });
+    drawOverlay({
+      cssHeight,
+      playedPercent,
+      resizedPeaks,
+      barWidth: BAR_WIDTH,
+      gap: GAP,
+      context: ctx,
+      radius: RADIUS,
+      scrubberHeight: variant === 'recording' ? 30 : cssHeight,
+    });
   }, [playedPercent, cssWidth, cssHeight, resizedPeaks]);
 
-  // RAF-driven overlay update — bypasses React render cycle for 60fps animation
+  // RAF overlay update to bypass React render cycle giving 60fps animation
   useImperativeHandle(
     ref,
     () => ({
@@ -111,7 +122,16 @@ const AudioWave = forwardRef(function AudioWave(
         const ctx = overlayCtxRef.current;
         if (!ctx) return;
         ctx.clearRect(0, 0, cssWidth, cssHeight);
-        drawOverlay({ cssHeight, playedPercent: p, resizedPeaks, barWidth: BAR_WIDTH, gap: GAP, context: ctx, radius: RADIUS });
+        drawOverlay({
+          cssHeight,
+          playedPercent: p,
+          resizedPeaks,
+          barWidth: BAR_WIDTH,
+          gap: GAP,
+          context: ctx,
+          radius: RADIUS,
+          scrubberHeight: variant === 'recording' ? 30 : cssHeight,
+        });
       },
     }),
     [cssWidth, cssHeight, resizedPeaks]
@@ -123,6 +143,7 @@ const AudioWave = forwardRef(function AudioWave(
     return Math.min(1, Math.max(0, (pointer.clientX - rect.left) / rect.width));
   };
 
+  
   const handlePointerDown = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
     isScrubbing.current = true;
     wasPlaying.current = isPlaying;
@@ -139,7 +160,16 @@ const AudioWave = forwardRef(function AudioWave(
     const ctx = overlayCtxRef.current;
     if (!ctx) return;
     ctx.clearRect(0, 0, cssWidth, cssHeight);
-    drawOverlay({ cssHeight, playedPercent: fraction, resizedPeaks, barWidth: BAR_WIDTH, gap: GAP, context: ctx, radius: RADIUS });
+    drawOverlay({
+      cssHeight,
+      playedPercent: fraction,
+      resizedPeaks,
+      barWidth: BAR_WIDTH,
+      gap: GAP,
+      context: ctx,
+      radius: RADIUS,
+      scrubberHeight: variant === 'recording' ? 30 : cssHeight,
+    });
   };
 
   const handlePointerUp = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
@@ -170,10 +200,10 @@ const AudioWave = forwardRef(function AudioWave(
   const currentSeconds = (scrubPercent ?? playedPercent) * duration;
 
   return (
-    <div className={styles.wrapper}>
-      <canvas className={styles.canvas} ref={baseCanvasRef} />
+    <div className={variant === 'map' ? styles.wrapper : styles.recordingWrapper}>
+      <canvas className={ variant === 'map' ? styles.canvas : styles.recordingCanvas} ref={baseCanvasRef} />
       <canvas
-        className={styles.playCanvas}
+        className={variant === 'map' ? styles.playCanvas : styles.recordingPlayCanvas}
         ref={overlayCanvasRef}
         role="slider"
         tabIndex={0}
@@ -188,8 +218,11 @@ const AudioWave = forwardRef(function AudioWave(
         onPointerCancel={handlePointerCancel}
         onKeyDown={handleKeyDown}
       />
+      {variant === 'map' && (
       <ScrubTooltip scrubPercent={scrubPercent} playedPercent={playedPercent} duration={duration} />
+      )}
     </div>
+
   );
 });
 

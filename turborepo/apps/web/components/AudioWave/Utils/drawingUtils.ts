@@ -182,7 +182,8 @@ type DrawOverlayProps = {
     gap: number,
     playedPercent: number,
     context: CanvasRenderingContext2D,
-    radius: number
+    radius: number,
+    scrubberHeight?: number,
 }
 
 export function drawOverlay ({
@@ -193,6 +194,7 @@ export function drawOverlay ({
     gap, 
     context,
     radius,
+    scrubberHeight = cssHeight,
 } : DrawOverlayProps) : void {
     if (!resizedPeaks.length) return;
     if (!Number.isFinite(cssHeight) || cssHeight <= 0) return;
@@ -230,9 +232,10 @@ export function drawOverlay ({
     context.strokeStyle = "rgba(255, 255, 255, 0.8)";
     context.lineWidth = 3;
     context.lineCap = "round";
+    const scrubberY = (cssHeight - scrubberHeight) / 2;  // center it
 
     context.beginPath();
-    context.moveTo(playedPixels, 0);
-    context.lineTo(playedPixels, cssHeight);
+    context.moveTo(playedPixels, scrubberY);
+    context.lineTo(playedPixels, scrubberY + scrubberHeight);
     context.stroke();
 }

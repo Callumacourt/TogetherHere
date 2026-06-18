@@ -27,3 +27,28 @@
   cursor: grabbing;
 }
 
+.recordingWrapper {
+  height: 100%;
+  position: relative;
+}
+
+.recordingCanvas {
+  display: block;
+  width: 100%;
+  height: 500px;
+  background: transparent; 
+}
+
+.recordingPlayCanvas {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 500px;
+  touch-action: none;
+}
+
+.playCanvas.scrubbing {
+  cursor: grabbing;
+}

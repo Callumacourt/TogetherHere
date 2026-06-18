@@ -52,6 +52,7 @@ export default function PopupCard({ url, audioUrl, location, timeAgo }: PopupCar
 
                     {peaks.length > 0 && (
                         <AudioWave
+                            variant="map"
                             duration={duration}
                             ref={waveRef}
                             playedPercent={playbackPercent}

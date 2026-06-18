@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { resizeCanvasToDisplay } from "../../utils/drawingUtils";
+import { resizeCanvasToDisplay } from "../AudioWave/Utils/drawingUtils";
 import styles from "./LiveWaveForm.module.css"
 
 type Props = {

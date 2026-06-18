@@ -1,5 +1,5 @@
 import styles from "./ScrubTooltip.module.css";
-import { formatTime } from "../../utils/drawingUtils";
+import { formatTime } from "../AudioWave/Utils/drawingUtils";
 
 type TooltipProps = {
     scrubPercent: number | null,

@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { computePeaks } from "../../../utils/drawingUtils";
+import { computePeaks } from "./drawingUtils";
 import type { AudioWaveHandle } from "../AudioWave";
 
 type Peak = { min: number; max: number };
