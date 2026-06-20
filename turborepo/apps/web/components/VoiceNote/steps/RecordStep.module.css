@@ -30,3 +30,17 @@
     font-size: 1.15rem;
     padding-right: 1rem;
 }
+
+.playbackControls {
+    height: fit-content;
+    margin-bottom: 2vh;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.playbackControls button {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+}

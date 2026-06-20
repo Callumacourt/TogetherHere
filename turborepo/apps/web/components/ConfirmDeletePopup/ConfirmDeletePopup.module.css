@@ -1,0 +1,33 @@
+.deletePopup {
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0,0,0,0.6);
+    border-radius: 25px;
+    top: 0px;
+    padding: 2rem 2rem;
+    width: 100%;
+    height: 100%;
+}
+
+.innerCard span {
+    display: flex;
+    margin-top: 2vh;
+    gap: 5px;
+}
+
+.innerCard button {
+    padding: 1vh 2vw;
+    border: 0;
+    border-radius: 10px;
+}
+
+.innerCard span button {
+    cursor: pointer;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}

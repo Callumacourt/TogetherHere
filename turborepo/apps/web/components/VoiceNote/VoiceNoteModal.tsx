@@ -7,13 +7,13 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 
 
-type Step = 'location' | 'record' | 'review';
+export type Step = 'location' | 'record' | 'review';
 type Prop = { onClose: () => void }
 
 export default function VoiceModal ({onClose} : Prop) {
     
-    const recorder = useVoiceRecorder();
     const [ step, setStep ] = useState<Step>('location');
+    const recorder = useVoiceRecorder({active: step === 'record'});
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
   
     const audioURL : string | null = useMemo(() => recorder.audioBlob ? URL.createObjectURL(recorder.audioBlob) : null, [recorder.audioBlob])
@@ -38,15 +38,14 @@ export default function VoiceModal ({onClose} : Prop) {
     function handleReturn () {
         if (step == 'record') {
             setStep('location');
-        } else if (
-            step == 'review') {
-            setStep('record');
+        } else if (step == 'review') {
+            setStep('record'); 
         };
     };
 
     function handleReset () {
         recorder.reset();
-        setStep('record');
+        setStep('record');  
     };
 
     return (
@@ -92,8 +91,8 @@ export default function VoiceModal ({onClose} : Prop) {
               <RecordStep
                 recorder = {recorder}
                 onConfirm={() => {
-                  recorder.stop();
-                  setStep('review');
+                  recorder.pause(); // don't stop incase backnav
+                  setStep("review");
                 }}
               />
               {recorder.micPermission === 'denied' && (<p>Please allow microphone access to continue</p>)}
@@ -102,9 +101,12 @@ export default function VoiceModal ({onClose} : Prop) {
           {step === 'review' && audioURL && (
             <div className={styles.reviewSection}>
               <h2 className={styles.stepTitle}>How does it sound?</h2>
-              <audio src={audioURL}/>
-              <button onClick={handleSubmit}>Post</button>
-              <button onClick={handleReset}>Re-record</button>
+              <audio src={audioURL} controls />
+              <button onClick={async () => {
+                await recorder.stop();
+                await handleSubmit();
+              }}>Post</button>
+              <button onClick={handleReset}>Re-record</button>  
             </div>
           )}
         </motion.div>

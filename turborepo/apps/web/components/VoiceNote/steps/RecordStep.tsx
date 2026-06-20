@@ -1,5 +1,7 @@
 import styles from "./RecordStep.module.css";
 import LiveWaveForm from "../../LiveWaveForm/LiveWaveForm";
+import ConfirmDeletePopup from "../../ConfirmDeletePopup/ConfirmDeletePopup";
+import { motion } from "motion/react";
 import AudioWave from "../../AudioWave/AudioWave";
 import useAudioPlayer from "../../AudioWave/Utils/useAudioPlayer";
 import { VoiceRecorder } from "../hooks/useVoiceRecorder";
@@ -19,7 +21,11 @@ type Props = {
  */
 export default function RecordStep({ recorder, onConfirm }: Props) {
     const [elapsedMs, setElapsedMs] = useState<number>(recorder.totalTime || 0);
+    const [confirmingDelete, setConfirmingDelete] = useState<boolean>(false);
     const audioPlayer = useAudioPlayer(recorder.previewUrl || "");
+    const hasPreview = Boolean(recorder.previewUrl) && audioPlayer.peaks.length > 0;
+    const showPausedUi = (recorder.phase === "paused" || (recorder.phase === "idle" && hasPreview));
+
     const progress =
         audioPlayer.playbackPercent > 1
         ? audioPlayer.playbackPercent / 100
@@ -43,21 +49,20 @@ export default function RecordStep({ recorder, onConfirm }: Props) {
 
     // Determines current logic for the control button
     const handleMain = useCallback(async () => {
-        if (recorder.phase === 'idle') {
-            await recorder.start();
-        } else if (recorder.phase === 'paused') {
+        if (showPausedUi) {
             recorder.resume();
+        } else if (recorder.phase === 'idle') {
+            recorder.start();
         } else if (recorder.phase === 'recording') {
             recorder.pause();
         }
-    }, [recorder]);
+    }, [recorder, showPausedUi]);
 
-    // Determines current label for the control button
-    const mainLabel = recorder.phase === 'idle'
-        ? 'Record'
-        : recorder.phase === 'recording'
-            ? 'Pause'
-            : 'Resume';
+    const mainLabel = recorder.phase === 'recording'
+        ? 'Pause'
+        : showPausedUi
+            ? 'Resume recording'
+            : 'Record';
 
     // Convert ms to m/s
     function formatElapsed(ms: number) {
@@ -68,22 +73,22 @@ export default function RecordStep({ recorder, onConfirm }: Props) {
         return `${String(totalMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
     }
 
+    const handleDeleteConfirm = () => {
+        recorder.reset();
+        setConfirmingDelete(false);
+    };
+
     return (
         <div className={styles.recordContainer}>
             <div className={styles.waveformContainer}>
-                {recorder.phase === 'recording' && recorder.stream && (
-                    <LiveWaveForm stream={recorder.stream} isRecording={recorder.phase === 'recording'} />
+                {recorder.phase === "recording" && recorder.stream && (
+                    <LiveWaveForm stream={recorder.stream} isRecording={true} />
                 )}
-                
-                {/* Confirm there is a URL and non empty peaks to draw*/}
-                {recorder.phase === 'paused' && 
-                recorder.previewUrl && 
-                audioPlayer.peaks.length > 0 &&
-                (
-                    <>
+
+                {showPausedUi && (
                     <AudioWave
-                        variant = {'recording'}
-                        ref = {audioPlayer.waveRef}
+                        variant="recording"
+                        ref={audioPlayer.waveRef}
                         playedPercent={audioPlayer.playbackPercent}
                         duration={audioPlayer.duration}
                         isPlaying={audioPlayer.isPlaying}
@@ -92,19 +97,31 @@ export default function RecordStep({ recorder, onConfirm }: Props) {
                         handlePlay={audioPlayer.handlePlay}
                         peaks={audioPlayer.peaks}
                     />
-                    <button
-                        type="button" 
-                        onClick={audioPlayer.isPlaying ? audioPlayer.handlePause : audioPlayer.handlePlay}
-                    >
-                        {audioPlayer.isPlaying ? "Pause" : "Play"}
-                    </button>
-                    <button type="button" onClick={recorder.reset}>Reset</button>
-                    </>
                 )}
             </div>
 
+            {showPausedUi && (
+                <div className={styles.playbackControls}>
+                    {audioPlayer.isPlaying ? (
+                        <button type="button" onClick={audioPlayer.handlePause}>Pause</button>
+                    ) : (
+                        <button type="button" onClick={audioPlayer.handlePlay}>Play</button>
+                    )}
+                    <button type="button" onClick={() => setConfirmingDelete(true)}>Reset</button>
+                </div>
+            )}
+
+            {confirmingDelete && (
+                <motion.div>
+                    <ConfirmDeletePopup
+                        onCancel={() => setConfirmingDelete(false)}
+                        onConfirm={handleDeleteConfirm}
+                    />
+                </motion.div>
+            )}
+
             <p className={styles.clipDuration}>
-                {recorder.phase === 'paused' && recorder.previewUrl
+                {showPausedUi && recorder.previewUrl
                 ? `${formatElapsed(playedMs)} / ${formatElapsed(elapsedMs)}`
                 : formatElapsed(elapsedMs)
                 }
@@ -115,9 +132,9 @@ export default function RecordStep({ recorder, onConfirm }: Props) {
                     {mainLabel}
                 </button>
 
-                {recorder.phase === 'paused' && (
+                {showPausedUi && (
                     <button className={styles.nextBtn} type="button" onClick={onConfirm}>
-                        Continue
+                        Next
                     </button>
                 )}
             </div>
