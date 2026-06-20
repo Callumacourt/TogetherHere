@@ -1,45 +1,28 @@
 import { useState, useRef, useEffect } from "react";
-
-type MicPermission = 'idle' | 'granted' | 'denied';
-type RecorderPhase = 'idle' | 'recording' | 'paused';
-
-export type VoiceRecorder = {
-  audioBlob: Blob | null;
-  isRecording: boolean;
-  micPermission: MicPermission;
-  stream: MediaStream | null;
-  phase: RecorderPhase;
-  totalTime: number;
-  previewUrl: string | null;
-  start: () => Promise<void>;
-  stop: () => Promise<void> | void;
-  pause: () => void;
-  resume: () => void;
-  reset: () => void;
-};
-
-type UseVoiceRecorderOptions = {
-  active?: boolean;
-}
+import { useAutoPause } from "./useAutoPause";
+import { 
+  UseVoiceRecorderOptions,
+   VoiceRecorder, MicPermission, 
+   RecorderPhase 
+  } from "../types/types";
 
 export default function useVoiceRecorder(
-  { active = true}: UseVoiceRecorderOptions = {}
+ { active = true }: UseVoiceRecorderOptions = {}
 ): VoiceRecorder {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [micPermission, setMicPermission] = useState<MicPermission>('idle');
   const [phase, setPhase] = useState<RecorderPhase>('idle');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const accumulatedMsRef = useRef<number>(0);
   const segmentStartMsRef = useRef<number | null>(null);
-
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const isPauseFlushRef = useRef<boolean>(false);
 
-  // Revoke existing audio URL and replace with new
+  // -- Utils -- //
   function replacePreviewUrl(nextUrl: string | null) {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
@@ -71,7 +54,7 @@ export default function useVoiceRecorder(
     };
   }, []);
   
-  // Pause helper
+  // -- Recording -- //
   function pauseInternal() {
     const r = recorderRef.current;
     if (!r || r.state !== "recording") return;
@@ -92,10 +75,9 @@ export default function useVoiceRecorder(
     try { r.pause(); } catch {}
   }
 
-  // --Recording Functions -- //
-
   async function handleStartRecording() {
     try {
+      // Ensure all of these are reset
       cleanupStreamAndRecorder();
       chunksRef.current = [];
       accumulatedMsRef.current = 0;
@@ -104,9 +86,9 @@ export default function useVoiceRecorder(
       setAudioBlob(null);
       replacePreviewUrl(null);
 
+      // Init audio stream and recorder
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-
       const recorder = new MediaRecorder(stream);
       recorderRef.current = recorder;
 
@@ -115,7 +97,7 @@ export default function useVoiceRecorder(
           chunksRef.current.push(e.data);
         }
 
-        // Build an audioURL of chunks up to that point when pausing
+        // Build a Blob of chunks up to pause for AudioWave on pause
         if (isPauseFlushRef.current) {
           const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
           const url = URL.createObjectURL(blob);
@@ -130,7 +112,7 @@ export default function useVoiceRecorder(
         setAudioBlob(blob);
         setIsRecording(false);
       };
-
+      
       setMicPermission('granted');
       setPhase('recording');
       setIsRecording(true);
@@ -143,8 +125,6 @@ export default function useVoiceRecorder(
 
   function handleResumeRecording() {
     const r = recorderRef.current;
-  
-    // If paused, resume normally
     if (r && r.state === 'paused') {
         if (segmentStartMsRef.current == null) {
             segmentStartMsRef.current = Date.now();
@@ -154,48 +134,8 @@ export default function useVoiceRecorder(
         setPhase('recording');
         setIsRecording(true);
         return;
-    }
-    
-    // If idle but stream exists (back nav from review), restart recording on same stream
-    if (r && r.state === 'inactive' && streamRef.current) {
-        if (segmentStartMsRef.current == null) {
-            segmentStartMsRef.current = Date.now();
-        }
-        streamRef.current.getAudioTracks().forEach(t => (t.enabled = true));
-        try { r.resume(); } catch {  }
-        setPhase('recording');
-        setIsRecording(true);
-        return;
-    }
-  }
-
-  // Auto pause when leaving the tab/app view
-  useEffect(() => {
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        pauseInternal();
-      }
     };
-
-    const onPageHide = () => {
-      pauseInternal();
-    };
-
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    window.addEventListener('pagehide', onPageHide);
-
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-      window.removeEventListener('pagehide', onPageHide);
-    };
-  }, []);
-
-  // Auto pause when navigating out of voice recording phase
-  useEffect(() => {
-    if (!active && phase === "recording") {
-      pauseInternal();
-    }
-  }, [active, phase]);
+  };
 
   async function handleStopRecording() {
     const r = recorderRef.current;
@@ -235,6 +175,9 @@ export default function useVoiceRecorder(
     setMicPermission('idle');
     replacePreviewUrl(null);
   }
+
+  // -- Effects -- //
+  useAutoPause(pauseInternal, active, phase);
 
   return {
     audioBlob,

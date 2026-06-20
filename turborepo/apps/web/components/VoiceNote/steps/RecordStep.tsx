@@ -3,80 +3,37 @@ import LiveWaveForm from "../../LiveWaveForm/LiveWaveForm";
 import ConfirmDeletePopup from "../../ConfirmDeletePopup/ConfirmDeletePopup";
 import { motion } from "motion/react";
 import AudioWave from "../../AudioWave/AudioWave";
+import { useRecordStepState } from "../hooks/useRecordState";
+import { VoiceRecorder } from "../types/types";
+import { formatElapsed } from "../utils/formatElapsed";
 import useAudioPlayer from "../../AudioWave/Utils/useAudioPlayer";
-import { VoiceRecorder } from "../hooks/useVoiceRecorder";
-import { useCallback, useEffect, useState } from "react";
 
-type Props = {
-    recorder: VoiceRecorder,
-    onConfirm: () => void,
+type Props = { recorder: VoiceRecorder; onConfirm: () => void; }
+
+type PausedWaveFormProps = {
+    audioPlayer: ReturnType<typeof useAudioPlayer>;
+    onDelete: () => void;
 }
 
 /** 
- * Responsible for voice note recording JSX and logic
- * Renders live wave form when user is recording, converts this to an audioBlob and renders AudioWave when paused
+ * VoiceNote step JSX
  * @param recorder - VoiceRecorder hook instance
  * @param onConfirm - Function progressing the parent VoiceNoteModal
  * @returns - JSX for recording an audio clip
  */
-export default function RecordStep({ recorder, onConfirm }: Props) {
-    const [elapsedMs, setElapsedMs] = useState<number>(recorder.totalTime || 0);
-    const [confirmingDelete, setConfirmingDelete] = useState<boolean>(false);
-    const audioPlayer = useAudioPlayer(recorder.previewUrl || "");
-    const hasPreview = Boolean(recorder.previewUrl) && audioPlayer.peaks.length > 0;
-    const showPausedUi = (recorder.phase === "paused" || (recorder.phase === "idle" && hasPreview));
+export default function RecordStep({ recorder, onConfirm} : Props) {
 
-    const progress =
-        audioPlayer.playbackPercent > 1
-        ? audioPlayer.playbackPercent / 100
-        : audioPlayer.playbackPercent;
-
-    const playedMs = Math.floor(progress * audioPlayer.duration * 1000);
-
-    useEffect(() => {
-        setElapsedMs(recorder.totalTime || 0);
-    }, [recorder.totalTime]);
-
-    useEffect(() => {
-        if (recorder.phase !== 'recording') return;
-        setElapsedMs(recorder.totalTime || 0);
-        {/* timer to increase shown duration by 1s*/}
-        const id = window.setInterval(() => {
-            setElapsedMs(prev => prev + 1000);
-        }, 1000);
-        return () => clearInterval(id);
-    }, [recorder.phase, recorder.totalTime]);
-
-    // Determines current logic for the control button
-    const handleMain = useCallback(async () => {
-        if (showPausedUi) {
-            recorder.resume();
-        } else if (recorder.phase === 'idle') {
-            recorder.start();
-        } else if (recorder.phase === 'recording') {
-            recorder.pause();
-        }
-    }, [recorder, showPausedUi]);
-
-    const mainLabel = recorder.phase === 'recording'
-        ? 'Pause'
-        : showPausedUi
-            ? 'Resume recording'
-            : 'Record';
-
-    // Convert ms to m/s
-    function formatElapsed(ms: number) {
-        const totalSeconds = Math.floor(ms / 1000);
-        const totalMinutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-
-        return `${String(totalMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-    }
-
-    const handleDeleteConfirm = () => {
-        recorder.reset();
-        setConfirmingDelete(false);
-    };
+    const {
+        elapsedMs,
+        confirmingDelete,
+        setConfirmingDelete,
+        audioPlayer,
+        showPausedUi,
+        playedMs,
+        handleMain,
+        handleDeleteConfirm,
+        mainLabel,
+    } = useRecordStepState(recorder, onConfirm);
 
     return (
         <div className={styles.recordContainer}>
@@ -86,30 +43,12 @@ export default function RecordStep({ recorder, onConfirm }: Props) {
                 )}
 
                 {showPausedUi && (
-                    <AudioWave
-                        variant="recording"
-                        ref={audioPlayer.waveRef}
-                        playedPercent={audioPlayer.playbackPercent}
-                        duration={audioPlayer.duration}
-                        isPlaying={audioPlayer.isPlaying}
-                        handleSkip={audioPlayer.handleSkip}
-                        handlePause={audioPlayer.handlePause}
-                        handlePlay={audioPlayer.handlePlay}
-                        peaks={audioPlayer.peaks}
+                    <PausedWaveform
+                        audioPlayer={audioPlayer}
+                        onDelete={() => setConfirmingDelete(true)}
                     />
                 )}
             </div>
-
-            {showPausedUi && (
-                <div className={styles.playbackControls}>
-                    {audioPlayer.isPlaying ? (
-                        <button type="button" onClick={audioPlayer.handlePause}>Pause</button>
-                    ) : (
-                        <button type="button" onClick={audioPlayer.handlePlay}>Play</button>
-                    )}
-                    <button type="button" onClick={() => setConfirmingDelete(true)}>Reset</button>
-                </div>
-            )}
 
             {confirmingDelete && (
                 <motion.div>
@@ -139,5 +78,31 @@ export default function RecordStep({ recorder, onConfirm }: Props) {
                 )}
             </div>
         </div>
+    )
+}
+
+function PausedWaveform({ audioPlayer, onDelete } : PausedWaveFormProps) {
+    return (
+        <>
+            <AudioWave
+                variant="recording"
+                ref={audioPlayer.waveRef}
+                playedPercent={audioPlayer.playbackPercent}
+                duration={audioPlayer.duration}
+                isPlaying={audioPlayer.isPlaying}
+                handleSkip={audioPlayer.handleSkip}
+                handlePause={audioPlayer.handlePause}
+                handlePlay={audioPlayer.handlePlay}
+                peaks={audioPlayer.peaks}
+            />
+            <div className={styles.playbackControls}>
+                {audioPlayer.isPlaying ? (
+                    <button type="button" onClick={audioPlayer.handlePause}>Pause</button>
+                ) : (
+                    <button type="button" onClick={audioPlayer.handlePlay}>Play</button>
+                )}
+                <button type="button" onClick={onDelete}>Delete</button>
+            </div>
+        </>
     )
 }

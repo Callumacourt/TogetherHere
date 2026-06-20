@@ -1,4 +1,3 @@
-import { SetStateAction } from "react";
 import styles from "./ConfirmDeletePopup.module.css";
 
 type Props = {

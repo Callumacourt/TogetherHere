@@ -4,20 +4,18 @@ import RecordStep from "./steps/RecordStep";
 import styles from "./VoiceNoteModal.module.css";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { Step } from "./types/types";
 import { motion } from "motion/react";
-
-
-export type Step = 'location' | 'record' | 'review';
 type Prop = { onClose: () => void }
 
 export default function VoiceModal ({onClose} : Prop) {
-    
-    const [ step, setStep ] = useState<Step>('location');
+    const [ step, setStep ] = useState<Step>('location'); 
     const recorder = useVoiceRecorder({active: step === 'record'});
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
   
     const audioURL : string | null = useMemo(() => recorder.audioBlob ? URL.createObjectURL(recorder.audioBlob) : null, [recorder.audioBlob])
-
+    
+    // -- Clean up -- //
     useEffect(() => {
         return () => {
             if (audioURL) {
@@ -26,6 +24,7 @@ export default function VoiceModal ({onClose} : Prop) {
         }
     }, [audioURL]);
 
+    // -- Modal progression handlers -- //
     async function handleSubmit () {
         const data = new FormData();
         data.append('audio', recorder.audioBlob!);
