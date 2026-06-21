@@ -20,4 +20,4 @@ export type UseVoiceRecorderOptions = {
   active?: boolean;
 }
 
-export type Step = 'location' | 'record' | 'review';
+export type Step = 'location' | 'record' | 'photo' | 'review';

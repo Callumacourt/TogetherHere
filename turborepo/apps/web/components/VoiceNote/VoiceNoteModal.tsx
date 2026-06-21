@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Step } from "./types/types";
 import { motion } from "motion/react";
+import PhotoStep from "./steps/PhotoStep";
 type Prop = { onClose: () => void }
 
 export default function VoiceModal ({onClose} : Prop) {
@@ -37,8 +38,10 @@ export default function VoiceModal ({onClose} : Prop) {
     function handleReturn () {
         if (step == 'record') {
             setStep('location');
-        } else if (step == 'review') {
-            setStep('record'); 
+        } else if (step === 'photo') {
+          setStep('record');
+        } else if (step === 'review') {
+          setStep('photo');
         };
     };
 
@@ -91,10 +94,22 @@ export default function VoiceModal ({onClose} : Prop) {
                 recorder = {recorder}
                 onConfirm={() => {
                   recorder.pause(); // don't stop incase backnav
-                  setStep("review");
+                  setStep("photo");
                 }}
               />
               {recorder.micPermission === 'denied' && (<p>Please allow microphone access to continue</p>)}
+            </div>
+          )}
+          {step === 'photo' && (
+            <div className={styles.photoSection}>
+              <span>
+                <h2>Add a photo?</h2>
+                <small>Optional</small>
+              </span>
+              <PhotoStep 
+                onConfirm={() => {
+                setStep("review")
+                }}/>
             </div>
           )}
           {step === 'review' && audioURL && (
