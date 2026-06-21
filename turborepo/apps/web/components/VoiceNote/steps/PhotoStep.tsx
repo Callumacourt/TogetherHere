@@ -1,30 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
 import styles from "./PhotoStep.module.css";
+import useImageIntake from "../hooks/useImageIntake";
 
 type Props = {
-    onConfirm: () => void
-}
+    imageIntake: ReturnType<typeof useImageIntake>;
+    onConfirm: () => void;
+};
 
-export default function PhotoStep ({onConfirm} : Props) {
-    const [imageUrl, setImgUrl] = useState<string | null>(null);
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const imgFile = e.target.files?.[0];
-        if (!imgFile) return;
-
-        const url = URL.createObjectURL(imgFile);
-        setImgUrl((prev) => {
-            if (prev) URL.revokeObjectURL(prev);
-            return url;
-        });
-    };
-
-    useEffect(() => {
-        return () => {
-            if (imageUrl) URL.revokeObjectURL(imageUrl);
-        }
-    }, [imageUrl]);
-
+export default function PhotoStep ({imageIntake, onConfirm} : Props) {
     return (
         <div className={styles.photoStepContainer}>
             <form action="">
@@ -34,14 +16,16 @@ export default function PhotoStep ({onConfirm} : Props) {
                     id="photo" 
                     name="photo" 
                     accept="image/*"
-                    onChange={handleFileChange}
+                    onChange={imageIntake.handleFileChange}
                 />
             </form>
             <div className={styles.imgContainer}>
-                {imageUrl && <img src={imageUrl} alt="preview" />}
+                {imageIntake.imageUrl && <img src={imageIntake.imageUrl} alt="preview" />}
             </div>
-            <button type="button" onClick={() => setImgUrl('')}>Delete</button>
-            <button type="button" onClick={onConfirm}>Next</button>
+            <span className = {styles.imgButtons}>
+                <button type="button" onClick={() => imageIntake.setImgUrl('')}>Delete</button>
+                <button type="button" onClick={onConfirm}>Next</button>
+            </span>
         </div>
     );
 }

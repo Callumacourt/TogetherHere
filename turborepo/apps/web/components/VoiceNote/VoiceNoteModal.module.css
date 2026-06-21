@@ -62,4 +62,62 @@
     max-width: 90vw;
     height: 95vh;
 }
+
+.contentWrapper {
+    display: flex;
+    gap: 2vh;
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    height: fit-content;
+    flex-direction: column;
+}
+
+.contentWrapper img {
+    width: 100%;
+    height: 100%;
+    
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.contentWrapper audio {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.imgWrapper {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 55%;
+    aspect-ratio: 4 / 3; 
+    flex: 1;
+    min-height: 0;
+    flex-shrink: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    align-self: flex-start;
+}
+
+.reviewButtons {
+    margin-top: 2vh;
+    display: flex;
+    justify-content: end;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.reviewButtons button {
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid #000;
+    border-radius: 25px;
+    padding: 1vh 2vw;
+    font-family: Space Grotesk, Inter, Avenir Next, Segoe UI, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
 }

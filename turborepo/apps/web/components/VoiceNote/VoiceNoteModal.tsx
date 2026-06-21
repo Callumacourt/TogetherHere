@@ -7,15 +7,18 @@ import { useEffect, useMemo, useState } from "react";
 import { Step } from "./types/types";
 import { motion } from "motion/react";
 import PhotoStep from "./steps/PhotoStep";
+import useImageIntake from "./hooks/useImageIntake";
+import StyledAudioPlayer from "../StyledAudioPlayer/StyledAudioPlayer";
 type Prop = { onClose: () => void }
 
 export default function VoiceModal ({onClose} : Prop) {
     const [ step, setStep ] = useState<Step>('location'); 
     const recorder = useVoiceRecorder({active: step === 'record'});
+    const imageIntake = useImageIntake();
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
   
     const audioURL : string | null = useMemo(() => recorder.audioBlob ? URL.createObjectURL(recorder.audioBlob) : null, [recorder.audioBlob])
-    
+     
     // -- Clean up -- //
     useEffect(() => {
         return () => {
@@ -107,6 +110,7 @@ export default function VoiceModal ({onClose} : Prop) {
                 <small>Optional</small>
               </span>
               <PhotoStep 
+                imageIntake = {imageIntake}
                 onConfirm={() => {
                 setStep("review")
                 }}/>
@@ -114,13 +118,25 @@ export default function VoiceModal ({onClose} : Prop) {
           )}
           {step === 'review' && audioURL && (
             <div className={styles.reviewSection}>
-              <h2 className={styles.stepTitle}>How does it sound?</h2>
-              <audio src={audioURL} controls />
-              <button onClick={async () => {
-                await recorder.stop();
-                await handleSubmit();
-              }}>Post</button>
-              <button onClick={handleReset}>Re-record</button>  
+              <h2 className={styles.stepTitle}>How does it look?</h2>
+              <div className={styles.contentWrapper}>
+                <div className={styles.imgWrapper}>
+                  <Image 
+                    src={imageIntake.imageUrl ? imageIntake.imageUrl : ''}
+                    alt="Your uploaded image"
+                    fill
+                    style={{objectFit: 'cover', borderRadius: '6px'}}
+                  />
+                </div>
+                <StyledAudioPlayer src={audioURL}/>
+              </div>
+              <span className = {styles.reviewButtons}>
+                <button onClick={handleReset}>Re-record</button>  
+                <button onClick={async () => {
+                  await recorder.stop();
+                  await handleSubmit();
+                }}>Post</button>
+              </span>
             </div>
           )}
         </motion.div>

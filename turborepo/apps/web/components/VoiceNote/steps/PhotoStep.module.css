@@ -11,3 +11,15 @@
 .inputBtn {
     cursor: pointer;
 }
+
+.imgButtons button {
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid #000;
+    border-radius: 25px;
+    padding: 1vh 2vw;
+    font-family: Space Grotesk, Inter, Avenir Next, Segoe UI, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
