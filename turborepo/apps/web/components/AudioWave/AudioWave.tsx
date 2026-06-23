@@ -199,11 +199,38 @@ const AudioWave = forwardRef(function AudioWave(
 
   const currentSeconds = (scrubPercent ?? playedPercent) * duration;
 
+  if (variant === "map") {
+    return (
+      <div className={styles.mapStack}>
+        <div className={styles.mapWaveStage}>
+          <canvas className={styles.canvas} ref={baseCanvasRef} />
+          <canvas
+            className={styles.playCanvas}
+            ref={overlayCanvasRef}
+            role="slider"
+            tabIndex={0}
+            aria-label="Audio playback position"
+            aria-valuemin={0}
+            aria-valuemax={Math.round(duration)}
+            aria-valuenow={Math.round(currentSeconds)}
+            aria-valuetext={`${formatTime(currentSeconds)} of ${formatTime(duration)}`}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
+        <ScrubTooltip scrubPercent={scrubPercent} playedPercent={playedPercent} duration={duration} />
+      </div>
+    );
+  }
+
   return (
-    <div className={variant === 'map' ? styles.wrapper : styles.recordingWrapper}>
-      <canvas className={ variant === 'map' ? styles.canvas : styles.recordingCanvas} ref={baseCanvasRef} />
+    <div className={styles.recordingWrapper}>
+      <canvas className={styles.recordingCanvas} ref={baseCanvasRef} />
       <canvas
-        className={variant === 'map' ? styles.playCanvas : styles.recordingPlayCanvas}
+        className={styles.recordingPlayCanvas}
         ref={overlayCanvasRef}
         role="slider"
         tabIndex={0}
@@ -218,11 +245,7 @@ const AudioWave = forwardRef(function AudioWave(
         onPointerCancel={handlePointerCancel}
         onKeyDown={handleKeyDown}
       />
-      {variant === 'map' && (
-      <ScrubTooltip scrubPercent={scrubPercent} playedPercent={playedPercent} duration={duration} />
-      )}
     </div>
-
   );
 });
 
