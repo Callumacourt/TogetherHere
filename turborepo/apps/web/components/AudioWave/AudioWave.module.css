@@ -1,5 +1,8 @@
-.wrapper {
+.wrapper, .recordingWrapper {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .canvas {
@@ -11,9 +14,9 @@
 
 .playCanvas {
   position: absolute;
+  inset: 0;
+  margin: auto;
   cursor: pointer;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100px;
   touch-action: none;
@@ -35,18 +38,22 @@
 .recordingCanvas {
   display: block;
   width: 100%;
-  height: 500px;
+  height: 300px;
   background: transparent; 
 }
 
 .recordingPlayCanvas {
   position: absolute;
+  inset: 0;
+  margin: auto;
   cursor: pointer;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 500px;
+  height: 300px;
   touch-action: none;
+}
+
+.recordingPlayCanvas:hover {
+  cursor: grab;
 }
 
 .playCanvas.scrubbing {

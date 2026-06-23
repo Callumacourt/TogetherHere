@@ -134,7 +134,7 @@ const AudioWave = forwardRef(function AudioWave(
         });
       },
     }),
-    [cssWidth, cssHeight, resizedPeaks]
+    [cssWidth, cssHeight, resizedPeaks, variant]
   );
 
   const getFraction = (pointer: React.PointerEvent<HTMLCanvasElement>): number | undefined => {

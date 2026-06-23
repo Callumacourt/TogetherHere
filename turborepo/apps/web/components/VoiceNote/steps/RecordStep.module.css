@@ -21,7 +21,7 @@
 
 .btns {
     display: flex;
-    margin-top: 4vh;
+    margin-top: 3.9vh;
     justify-content: flex-end;
     gap: 12px;
 }

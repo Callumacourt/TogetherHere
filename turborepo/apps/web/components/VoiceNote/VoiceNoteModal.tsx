@@ -16,7 +16,7 @@ export default function VoiceModal ({onClose} : Prop) {
     const recorder = useVoiceRecorder({active: step === 'record'});
     const imageIntake = useImageIntake();
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
-    const [ photoError, setPhotoError ] = useState<string>('');
+    const isPortrait = !!imageIntake.aspectRatio && imageIntake.aspectRatio < 1;
    
     const audioURL : string | null = useMemo(() => recorder.audioBlob ? URL.createObjectURL(recorder.audioBlob) : null, [recorder.audioBlob])
      
@@ -118,12 +118,15 @@ export default function VoiceModal ({onClose} : Prop) {
               <h2 className={styles.stepTitle}>How does it look?</h2>
               <div className={styles.contentWrapper}>
                 <div className={styles.imgWrapper}>
-                  <Image 
-                    src={imageIntake.imageUrl ? imageIntake.imageUrl : ''}
-                    alt="Your uploaded image"
-                    fill
-                    style={{objectFit: 'cover', borderRadius: '6px'}}
-                  />
+                  {imageIntake.imageUrl && (
+                    <Image 
+                      src={imageIntake.imageUrl}
+                      alt="Your uploaded image"
+                      fill
+                      className={`${styles.reviewImage} ${isPortrait ? styles.containPortraitDesktop : ''}`}
+                      style={{objectPosition: imageIntake.objectPosition, borderRadius: '6px'}}
+                    />
+                  )}
                 </div>
                 <StyledAudioPlayer src={audioURL}/>
               </div>

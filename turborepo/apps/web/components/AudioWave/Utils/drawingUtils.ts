@@ -122,7 +122,21 @@ export function resizePeaks ({
 
         if (min === Infinity) min = 0;
         if (max === -Infinity) max = 0; 
-        resizedPeaks.push({min : min, max: max});
+
+        const limitValue = (val : number) => {
+        const threshold = 0.6; // Values below 0.6 stay the same
+        const absVal = Math.abs(val);
+        const sign = Math.sign(val);
+
+        if (absVal <= threshold) {
+            return val; // Leave normal peaks
+        }
+        
+        // Smoothly compress only the extreme spikes that overshoot the threshold
+        const compressed = threshold + (absVal - threshold) / (1 + (absVal - threshold));
+        return compressed * sign;
+        };
+        resizedPeaks.push({min : limitValue(min), max: limitValue(max)});
     };
 
     return resizedPeaks;

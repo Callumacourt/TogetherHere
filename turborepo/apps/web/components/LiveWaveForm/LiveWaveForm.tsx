@@ -22,6 +22,13 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
     const barWidth = 2;
     const gap = 3;
 
+    function getCanvasCssSize(canvas: HTMLCanvasElement) {
+        const dpr = window.devicePixelRatio || 1;
+        const cssWidth = canvas.clientWidth || Math.round(canvas.width / dpr);
+        const cssHeight = canvas.clientHeight || Math.round(canvas.height / dpr);
+        return { cssWidth, cssHeight };
+    }
+
     function drawWaves() {
         const ctx = canvasCtxRef.current;
         const canvas = canvasEleRef.current;
@@ -29,23 +36,28 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
         const dataArray = dataArrayRef.current;
         if (!ctx || !canvas || !analyser || !dataArray) return;
 
+        const { cssWidth, cssHeight } = getCanvasCssSize(canvas);
+        if (cssWidth <= 0 || cssHeight <= 0) return;
+
         rafRef.current = requestAnimationFrame(drawWaves);
         analyser.getByteTimeDomainData(dataArrayRef.current as Uint8Array<ArrayBuffer>);
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, cssWidth, cssHeight);
         ctx.fillStyle = '#ffffff';
         ctx.lineWidth = 2;
 
-        const centerY = canvas.height / 2;
+        const centerY = cssHeight / 2;
 
         let max = 0;
 
         for (let i = 0; i < dataArray.length; i++) {
-            max = Math.max(max, dataArray[i]);
+            const sample = dataArray[i];
+            if (sample === undefined) continue;
+            max = Math.max(max, sample);
         }
 
         peaksRef.current.push(max);
-        const maxBars = Math.floor(canvas.width / (barWidth + gap));
+        const maxBars = Math.floor(cssWidth / (barWidth + gap));
         if (peaksRef.current.length > maxBars) peaksRef.current.shift();
     
         for (let i = 0; i < peaksRef.current.length; i++) {
@@ -62,10 +74,14 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
         const ctx = canvasCtxRef.current;
         const canvas = canvasEleRef.current;
         if (!ctx || !canvas) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const { cssWidth, cssHeight } = getCanvasCssSize(canvas);
+        if (cssWidth <= 0 || cssHeight <= 0) return;
+
+        ctx.clearRect(0, 0, cssWidth, cssHeight);
         ctx.fillStyle = '#ffffff';
-        const centerY = canvas.height / 2;
-        const maxBars = Math.floor(canvas.width / (barWidth + gap))
+        const centerY = cssHeight / 2;
+        const maxBars = Math.floor(cssWidth / (barWidth + gap))
         for (let i = 0; i < maxBars; i++) {
            const barHeight = 2;
             ctx.fillRect(i * (barWidth + gap), centerY - barHeight / 2, barWidth, barHeight);
@@ -99,7 +115,7 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
                 audioContext.resume().then(() => {
                     if (!rafRef.current) drawWaves();
                 }).catch(() => {});
-            } else if (!peaksRef.current) {
+            } else if (!isRecording) {
                 if (rafRef.current) {
                     cancelAnimationFrame(rafRef.current);
                     rafRef.current = null;
