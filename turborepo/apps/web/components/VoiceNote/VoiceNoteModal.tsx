@@ -16,7 +16,8 @@ export default function VoiceModal ({onClose} : Prop) {
     const recorder = useVoiceRecorder({active: step === 'record'});
     const imageIntake = useImageIntake();
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
-  
+    const [ photoError, setPhotoError ] = useState<string>('');
+   
     const audioURL : string | null = useMemo(() => recorder.audioBlob ? URL.createObjectURL(recorder.audioBlob) : null, [recorder.audioBlob])
      
     // -- Clean up -- //
@@ -105,15 +106,11 @@ export default function VoiceModal ({onClose} : Prop) {
           )}
           {step === 'photo' && (
             <div className={styles.photoSection}>
-              <span>
-                <h2>Add a photo?</h2>
-                <small>Optional</small>
-              </span>
+              <h2 className={styles.stepTitle}>Add a photo?</h2>
               <PhotoStep 
-                imageIntake = {imageIntake}
-                onConfirm={() => {
-                setStep("review")
-                }}/>
+                imageIntake={imageIntake}
+                onConfirm={() => setStep('review')}
+              />
             </div>
           )}
           {step === 'review' && audioURL && (

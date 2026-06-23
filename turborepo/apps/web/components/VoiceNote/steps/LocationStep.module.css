@@ -33,3 +33,13 @@
 .title {
     padding-bottom: 3vh;
 }
+
+.locationNav {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+}
+
+.mapLoading {
+    pointer-events: none;
+}

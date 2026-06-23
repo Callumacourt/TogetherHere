@@ -6,7 +6,8 @@
 
 .locationSection,
 .recordSection,
-.reviewSection {
+.reviewSection,
+.photoSection {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -120,4 +121,4 @@
     font-size: 1.05rem;
     font-weight: 600;
 }
-}
+ }

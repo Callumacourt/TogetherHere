@@ -21,7 +21,9 @@
 
 .btns {
     display: flex;
-    gap: 1dvw;
+    margin-top: 4vh;
+    justify-content: flex-end;
+    gap: 12px;
 }
 
 .clipDuration {
@@ -35,7 +37,7 @@
     height: fit-content;
     margin-bottom: 2vh;
     display: flex;
-    gap: 15px;
+    gap: 20px;
     align-items: center;
 }
 

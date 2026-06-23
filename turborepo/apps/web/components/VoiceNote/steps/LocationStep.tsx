@@ -31,22 +31,35 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
 
     const [isDesktop, setIsDesktop] = useState(false);
     const [geoError, setGeoError] = useState(false);
+    const [loading, setLoading] = useState(false)
     const [mapInstance, setMapInstance] = useState<MapInstance | undefined>(undefined);
     const mapRef = useRef<MapRef | null>(null);
+    const pendingPin = useRef<{lat: number, lng: number} | null>(null);
 
     function onLocationGet (location : GeolocationPosition) {
         if (!mapRef.current) return;
         const lng = location.coords.longitude;
         const lat = location.coords.latitude;
+        pendingPin.current = { lat, lng };
         mapRef.current.flyTo({center: [lng, lat], zoom: 15});
         onPinChange({lat, lng});
     }
     
     useEffect(() => {
+        setLoading(true);
         navigator.geolocation.getCurrentPosition(
-            (pos) => {onLocationGet(pos)},
-            () => setGeoError(true)
-        )
+            (pos) => {
+                onLocationGet(pos);
+            },
+            () => {
+                setGeoError(true);
+                setLoading(false); 
+            },
+            {
+                maximumAge: 60_000,
+                timeout: 8000,
+            }
+        );
         const mq = window.matchMedia("(min-width:1008px)");
         const onChange = (e: MediaQueryListEvent | MediaQueryList) => setIsDesktop(Boolean("matches" in e ? e.matches : mq.matches));
         setIsDesktop(mq.matches);
@@ -75,9 +88,21 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
          />
          </div>
          <div className={styles.mapContainer}>
+            {loading && (
+                <div className={styles.mapLoading}>
+                    <span>Finding your location…</span>
+                </div>
+            )}
          <Map
-            ref = {mapRef}
+            ref={mapRef}
             onLoad={() => setMapInstance(mapRef.current?.getMap() ?? undefined)}
+            onMoveEnd={() => {
+                setLoading(false);
+                if (pendingPin.current) {
+                    onPinChange(pendingPin.current);
+                    pendingPin.current = null;
+                }
+            }}
             reuseMaps
             mapboxAccessToken= {process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
                 mapStyle= "mapbox://styles/mapbox/dark-v11"
@@ -103,10 +128,10 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
               )}
             </Map>
             </div>
-            {geoError && (
-                <>Please allow location permissions</>
-            )}
-            <button className = {styles.continueBtn} type="button" onClick={onConfirm}>Continue</button>
+            <span className = {styles.locationNav}>
+                {geoError && (<>Please select a location to continue</>)}
+                <button className = {styles.continueBtn} type="button" onClick={onConfirm}>Continue</button>
+            </span>
         </>
     )
 }

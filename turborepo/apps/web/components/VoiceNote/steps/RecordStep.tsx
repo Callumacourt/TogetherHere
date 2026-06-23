@@ -7,6 +7,7 @@ import { useRecordStepState } from "../hooks/useRecordState";
 import { VoiceRecorder } from "../types/types";
 import { formatElapsed } from "../utils/formatElapsed";
 import useAudioPlayer from "../../AudioWave/Utils/useAudioPlayer";
+import Image from "next/image";
 
 type Props = { recorder: VoiceRecorder; onConfirm: () => void; }
 
@@ -97,11 +98,32 @@ function PausedWaveform({ audioPlayer, onDelete } : PausedWaveFormProps) {
             />
             <div className={styles.playbackControls}>
                 {audioPlayer.isPlaying ? (
-                    <button type="button" onClick={audioPlayer.handlePause}>Pause</button>
+                    <button type="button" onClick={audioPlayer.handlePause}>
+                        <Image
+                            src={"/icons/pause.svg"}
+                            alt="Pause"
+                            height={30}
+                            width={30}
+                        />
+                    </button>
                 ) : (
-                    <button type="button" onClick={audioPlayer.handlePlay}>Play</button>
+                    <button type="button" onClick={audioPlayer.handlePlay}>
+                        <Image
+                            src={"/icons/play.svg"}
+                            alt="Play"
+                            height={30}
+                            width={30}
+                        />
+                    </button>
                 )}
-                <button type="button" onClick={onDelete}>Delete</button>
+                <button type="button" onClick={onDelete}>
+                    <Image
+                        src={"/icons/trash.svg"}
+                        alt="Delete"
+                        height={30}
+                        width={30}
+                    />
+                </button>
             </div>
         </>
     )

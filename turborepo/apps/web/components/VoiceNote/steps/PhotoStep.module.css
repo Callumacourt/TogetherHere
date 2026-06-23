@@ -1,15 +1,56 @@
+.photoStepContainer {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 .imgContainer {
-    width: 70%;
-    height: 70%;
+    position: relative;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .imgContainer img {
     width: 100%;
     height: 100%;
+    object-fit: cover;
+}
+
+.inputLabel {
+    padding-right: 2vw;
 }
 
 .inputBtn {
     cursor: pointer;
+    display: none;
+}
+
+.imgButtons {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    padding-top: 2vh;
+    gap: 12px
+}
+
+.photoUpload {
+    width: fit-content;
+    padding: 1vh 2vw;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 1vh 2vw;
+    background-color: white;
+    color: black;
+    font-family: Space Grotesk, Inter, Avenir Next, Segoe UI, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
 }
 
 .imgButtons button {
@@ -22,4 +63,13 @@
     font-family: Space Grotesk, Inter, Avenir Next, Segoe UI, sans-serif;
     font-size: 1.05rem;
     font-weight: 600;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.errorMsg {
+    display: block;
+    height: 1rem;
 }
