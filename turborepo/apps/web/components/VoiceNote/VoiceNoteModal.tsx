@@ -9,12 +9,14 @@ import { motion } from "motion/react";
 import PhotoStep from "./steps/PhotoStep";
 import useImageIntake from "./hooks/useImageIntake";
 import StyledAudioPlayer from "../StyledAudioPlayer/StyledAudioPlayer";
+import ConfirmClosing from "../ConfirmClosing.tsx/ConfirmClosing";
 type Prop = { onClose: () => void }
 
 export default function VoiceModal ({onClose} : Prop) {
     const [ step, setStep ] = useState<Step>('location'); 
     const recorder = useVoiceRecorder({active: step === 'record'});
     const imageIntake = useImageIntake();
+    const [ closing, setClosing ] = useState<boolean>(false);
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
     const isPortrait = !!imageIntake.aspectRatio && imageIntake.aspectRatio < 1;
    
@@ -72,7 +74,7 @@ export default function VoiceModal ({onClose} : Prop) {
               />
             </button>
             )}
-            <button className={styles.closeBtn} onClick={onClose}>
+            <button className={styles.closeBtn} onClick={() => setClosing(true)}>
               <Image
                 src="/icons/close-x.svg"
                 width={32}
@@ -81,6 +83,10 @@ export default function VoiceModal ({onClose} : Prop) {
               />
             </button>
           </div>
+
+          {closing && (
+            <ConfirmClosing onClose={onClose} setClosing={setClosing}/>
+          )}
 
           {step === 'location' && (
             <div className={styles.locationSection}>

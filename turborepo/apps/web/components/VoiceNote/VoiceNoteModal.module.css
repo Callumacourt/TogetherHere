@@ -12,11 +12,13 @@
     flex-direction: column;
     flex: 1;
     min-height: 0;
+    position: relative;
 }
 
 .reviewSection {
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
+    padding-bottom: 8vh;
 }
 
 .modalContainer {
@@ -95,23 +97,26 @@
 }
 
 .reviewButtons {
-    margin-top: 0;
-    padding-top: 1.5vh;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: end;
     gap: 12px;
     flex-shrink: 0;
+    padding: 1.5vh 0 0 0;
 }
 
 .reviewButtons button {
-    letter-spacing: .04em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     cursor: pointer;
-    border: 1px solid #000;
+    border: 1px solid black;
     border-radius: 25px;
-    padding: 1vh 4vw;
-    font-family: Space Grotesk, Inter, Avenir Next, Segoe UI, sans-serif;
-    font-size: .95rem;
+    padding: 1.7vh 4vw;
+    font-family: "Space Grotesk", "Inter", "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 1.05rem;
     font-weight: 600;
 }
 
@@ -159,13 +164,13 @@
 }
 
 .reviewButtons button {
-    letter-spacing: .04em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     cursor: pointer;
-    border: 1px solid #000;
+    border: 1px solid black;
     border-radius: 25px;
     padding: 1vh 2vw;
-    font-family: Space Grotesk, Inter, Avenir Next, Segoe UI, sans-serif;
+    font-family: "Space Grotesk", "Inter", "Avenir Next", "Segoe UI", sans-serif;
     font-size: 1.05rem;
     font-weight: 600;
 }

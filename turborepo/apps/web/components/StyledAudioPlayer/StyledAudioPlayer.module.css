@@ -5,7 +5,7 @@
 .player {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 1dvw;
   width: 100%;
   background: transparent !important;
   box-shadow: none !important;

@@ -3,6 +3,8 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
+    position: relative;
+    padding-bottom: 8vh;
 }
 
 .imgContainer {
@@ -53,9 +55,12 @@
 
 .imgButtons {
     display: flex;
-    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     justify-content: flex-end;
-    padding-top: 2vh;
+    padding: 1.5vh 0 0 0;
     gap: 12px;
 }
 
@@ -64,6 +69,8 @@
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 10;
 }
 
 .adjustHint {
@@ -92,13 +99,13 @@
 }
 
 .imgButtons button {
-    letter-spacing: .04em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     cursor: pointer;
-    border: 1px solid #000;
+    border: 1px solid black;
     border-radius: 25px;
-    padding: 1vh 2vw;
-    font-family: Space Grotesk, Inter, Avenir Next, Segoe UI, sans-serif;
+    padding: 1.7vh 4vw;
+    font-family: "Space Grotesk", "Inter", "Avenir Next", "Segoe UI", sans-serif;
     font-size: 1.05rem;
     font-weight: 600;
 }
@@ -109,14 +116,14 @@
 }
 
 .adjustButtons button {
-    letter-spacing: .04em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     cursor: pointer;
-    border: 1px solid #000;
+    border: 1px solid black;
     border-radius: 25px;
-    padding: 0.8vh 1.6vw;
-    font-family: Space Grotesk, Inter, Avenir Next, Segoe UI, sans-serif;
-    font-size: 0.9rem;
+    padding: 1.7vh 4vw;
+    font-family: "Space Grotesk", "Inter", "Avenir Next", "Segoe UI", sans-serif;
+    font-size: 1.05rem;
     font-weight: 600;
 }
 
@@ -129,9 +136,43 @@
     height: 1rem;
 }
 
+
+.btnSubgroup {
+    display: flex;
+    margin-right: 1vw;
+    gap: 1vw;
+}
+
+.btnSubgroup button {
+    border: 1px solid black;
+    padding: 1.7vh 4vw;
+    font-size: 1.05rem;
+    font-family: "Space Grotesk", "Inter", "Avenir Next", "Segoe UI", sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    background-color: black !important;
+    color: white;
+}
+
 @media (min-width: 1024px) {
     .containPreview {
         object-fit: contain;
         background: rgba(255, 255, 255, 0.03);
     }
+    
+
+    .adjustButtons button {
+        padding: 1vh 2vw;
+    }
+
+    .btnSubgroup button {
+        padding: 1vh 2vw;
+    }
+
+
+.imgButtons button {
+    padding: 1vh 2vw;
+}
 }

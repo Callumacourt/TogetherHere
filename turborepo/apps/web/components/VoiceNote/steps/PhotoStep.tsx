@@ -75,21 +75,23 @@ export default function PhotoStep ({imageIntake, onConfirm} : Props) {
                     </span>
                 </div>
             )}
-
+            
             {!adjust.isAdjusting && (
                 <span className={`${styles.imgButtons} ${!imageIntake.imageUrl ? styles.hidden : ''}`}>
-                    <button type="button" onClick={() => {
-                        imageIntake.clearImage();
-                        adjust.stopAdjusting();
-                    }}>Delete</button>
-                    <button
-                        type="button"
-                        disabled={!adjust.canAdjust}
-                        onClick={() => {
-                        if (!adjust.canAdjust) return;
-                        adjust.beginAdjust();
-                        setError('');
+                    <span className = {styles.btnSubgroup}>
+                        <button type="button" onClick={() => {
+                            imageIntake.clearImage();
+                            adjust.stopAdjusting();
+                        }}>Delete</button>
+                        <button
+                            type="button"
+                            disabled={!adjust.canAdjust}
+                            onClick={() => {
+                            if (!adjust.canAdjust) return;
+                            adjust.beginAdjust();
+                            setError('');
                     }}>Adjust</button>
+                    </span>
                     <button type="button" onClick={handleConfirm}>Next</button>
                 </span>
             )}
