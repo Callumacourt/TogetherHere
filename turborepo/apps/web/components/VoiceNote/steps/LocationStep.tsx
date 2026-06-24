@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import styles from "./LocationStep.module.css";
 import type { Theme } from '@mapbox/search-js-web'
+import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
 
 const SearchBox = dynamic(
     () => import("@mapbox/search-js-react").then(m => m.SearchBox),
@@ -89,9 +90,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
          </div>
          <div className={styles.mapContainer}>
             {loading && (
-                <div className={styles.mapLoading}>
-                    <span>Finding your location…</span>
-                </div>
+                <LoadingSpinner loading = {loading} caption="Finding your location"/>
             )}
          <Map
             ref={mapRef}
