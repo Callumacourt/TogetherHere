@@ -1,28 +1,49 @@
 .deletePopup {
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: rgba(0,0,0,0.6);
-    border-radius: 25px;
-    top: 0px;
     padding: 2rem 2rem;
     width: 100%;
     height: 100%;
 }
 
+.innerCard {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0,0,0,0.4);
+    padding: 6vh 6vw;
+    border-radius: 25px;
+    gap: 1vh;
+}
+
 .innerCard span {
     display: flex;
-    margin-top: 2vh;
-    gap: 5px;
+    margin-top: 1vh;
+    gap: 2vw;
 }
 
 .innerCard button {
-    padding: 1vh 2vw;
+    padding: 1vh 4vw;
     border: 0;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-family: "Space Grotesk", "Inter", "Avenir Next", "Segoe UI", sans-serif;
     border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.innerCard p {
+    margin-bottom: 2vh;
+}
+
+.deletePopup button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 .innerCard span button {
@@ -30,4 +51,20 @@
     display: flex;
     gap: 12px;
     justify-content: flex-end;
+}
+
+@media (min-width: 1024px) {
+    .innerCard {
+        padding: 8vh 2vw;
+        gap: 1vh;
+    }
+
+    .innerCard span {
+        margin-top: 2vh;
+        gap: 2vw;
+    }
+
+    .innerCard button {
+        padding: 1vh 2vw;
+    }
 }

@@ -11,6 +11,7 @@ type Props = {
 
 export default function PhotoStep ({imageIntake, onConfirm} : Props) {
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const cameraInputRef = useRef<HTMLInputElement | null>(null);
     const [error, setError] = useState('');
     const adjust = useImageFocusAdjust({
         imageUrl: imageIntake.imageUrl,
@@ -29,11 +30,20 @@ export default function PhotoStep ({imageIntake, onConfirm} : Props) {
 
     return (
         <div className={styles.photoStepContainer}>
-            <label className = {styles.photoUpload} onClick={() => {
-                inputRef.current?.click();
-                setError('');
-            }}>
-                Upload an image</label>
+            <div className={styles.uploadActions}>
+                <label className = {styles.photoUpload} onClick={() => {
+                    inputRef.current?.click();
+                    setError('');
+                }}>
+                    Upload an image
+                </label>
+                <label className={styles.cameraCapture} onClick={() => {
+                    cameraInputRef.current?.click();
+                    setError('');
+                }}>
+                    Take photo
+                </label>
+            </div>
             <input className = {styles.inputBtn}
                 ref = {inputRef}
                 type="file" 
@@ -42,6 +52,16 @@ export default function PhotoStep ({imageIntake, onConfirm} : Props) {
                 accept="image/*"
                 onChange={imageIntake.handleFileChange}
                 />
+            <input
+                className={styles.inputBtn}
+                ref={cameraInputRef}
+                type="file"
+                id="camera-photo"
+                name="camera-photo"
+                accept="image/*"
+                capture="environment"
+                onChange={imageIntake.handleFileChange}
+            />
             <div
                 ref={adjust.frameRef}
                 className= {
