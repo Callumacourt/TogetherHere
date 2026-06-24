@@ -5,7 +5,7 @@ import type { AudioWaveHandle } from "../AudioWave";
 type Peak = { min: number; max: number };
 
 // Persists across instances so reopening the same popup skips refetching
-const peakCache = new Map<string, Peak[]>();
+export const peakCache = new Map<string, Peak[]>();
 
 export default function useAudioPlayer(audioUrl: string) {
     const audioContextRef = useRef<AudioContext | null>(null);
@@ -45,7 +45,6 @@ export default function useAudioPlayer(audioUrl: string) {
 
     // Setup audio element and context — reruns when audioUrl changes
     useEffect(() => {
-        if (!audioContextRef.current) audioContextRef.current = new AudioContext();
         audioRef.current = new Audio(audioUrl);
         audioRef.current.preload = "auto";
 
@@ -76,6 +75,7 @@ export default function useAudioPlayer(audioUrl: string) {
     }, [audioUrl]);
 
     async function handlePlay() {
+        if (!audioContextRef.current) audioContextRef.current = new AudioContext();
         if (audioContextRef.current?.state === "suspended") {
             await audioContextRef.current.resume();
         }

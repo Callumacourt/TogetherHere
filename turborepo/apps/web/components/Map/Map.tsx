@@ -1,14 +1,31 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Map, { Popup, Marker, NavigationControl } from "react-map-gl/mapbox";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import styles from "./Map.module.css";
 import PopupCard from "./Popup/PopupCard"
 import WaveForm from "./WaveForm/WaveForm";
+import { peakCache } from "../AudioWave/Utils/useAudioPlayer";
+import { computePeaks } from "../AudioWave/Utils/drawingUtils";
+
+type Note = {
+    id: number;
+    lat: number;
+    lon: number;
+    location: string;
+    timeAgo: string;
+    audioUrl: string;
+    imgUrl: string;
+  };
 
 export default function MapComponent() {
   const [isDesktop, setIsDesktop] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+
+  const bounds: mapboxgl.LngLatBoundsLike = [
+    [-3.204, 51.477],
+    [-3.165, 51.490],
+  ];
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width:1008px)");
@@ -21,23 +38,6 @@ export default function MapComponent() {
       else mq.removeListener(onChange as any);
     };
   }, []);
-
-  const bounds: mapboxgl.LngLatBoundsLike = [
-    [-3.204, 51.477],
-    [-3.165, 51.490],
-  ];
-  
-  type Note = {
-    id: number;
-    lat: number;
-    lon: number;
-    location: string;
-    timeAgo: string;
-    audioUrl: string;
-    imgUrl: string;
-  }
-
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   const mockData: Note[] = [
     {
@@ -69,6 +69,29 @@ export default function MapComponent() {
     },
   ]
 
+  
+  // Prefetch image and audio on mount for performance
+  useEffect(() => {
+    mockData.forEach(({ imgUrl, audioUrl }) => {
+      const img = new Image();
+      img.src = imgUrl;
+
+      if (peakCache.has(audioUrl)) return; // already decoded
+
+      fetch(audioUrl)
+        .then(r => r.arrayBuffer())
+        .then(buf => {
+          const ac = new OfflineAudioContext(1, 1, 44100);
+          return ac.decodeAudioData(buf);
+        })
+        .then(decoded => {
+          const bucketCount = Math.max(1, Math.round(300 * window.devicePixelRatio));
+          peakCache.set(audioUrl, computePeaks(decoded.getChannelData(0), bucketCount));
+        })
+        .catch(() => {});
+    });
+}, []);
+  
   return (
     <div className={styles.mapContainer}>
     <Map
@@ -79,10 +102,10 @@ export default function MapComponent() {
             {
                 longitude: -3.1832,
                 latitude: 51.4836,
-                zoom: 14.5
+                zoom: 13
             }}
             mapStyle= "mapbox://styles/mapbox/dark-v11"
-            minZoom={13.5}
+            minZoom={13}
             maxZoom={18}
             style={{ width: "100%", height: "100%" }}
     >
@@ -100,7 +123,7 @@ export default function MapComponent() {
             e.originalEvent.stopPropagation()
             setSelectedNote(data);
           }}>
-          <WaveForm/>
+          <WaveForm seed={data.id}/>
         </Marker>
       ))}
       {selectedNote && (
@@ -114,6 +137,7 @@ export default function MapComponent() {
         >
           <PopupCard
             url={selectedNote.imgUrl}
+            key={selectedNote.id}
             audioUrl = {selectedNote.audioUrl}
             location={selectedNote.location}
             timeAgo={selectedNote.timeAgo}

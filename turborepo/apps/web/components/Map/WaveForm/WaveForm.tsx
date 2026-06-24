@@ -1,20 +1,24 @@
 import styles from "./WaveForm.module.css";
 
-export default function WaveForm() {
-    // placeholder until i get real audio clips
-    const waves = Array.from({ length: 12 }, () => {
-        return Math.random() * 50 + 10; 
-    });
+function seededRandom(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 16807 + 0) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
 
-    return (
-        <section className={styles.waveContainer}>
-            {waves.map((height, i) => (
-                <div
-                    key={i}
-                    className={styles.wave}
-                    style={{ height: `${height}px` }}
-                />
-            ))}
-        </section>
-    );
+export default function WaveForm({ seed }: { seed: number }) {
+  const rand = seededRandom(seed);
+  const waves = Array.from({ length: 12 }, () => rand() * 50 + 10);
+
+  return (
+    <section
+    onTouchStart={(e) => e.stopPropagation()}
+     className={styles.waveContainer}>
+      {waves.map((height, i) => (
+        <div key={i} className={styles.wave} style={{ height: `${height}px` }} />
+      ))}
+    </section>
+  );
 }

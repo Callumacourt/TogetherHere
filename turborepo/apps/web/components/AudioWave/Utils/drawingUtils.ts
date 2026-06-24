@@ -34,7 +34,7 @@ export function resizeCanvasToDisplay (
         return true;
     };
 
-type Peak = { min: number, max: number }
+export type Peak = { min: number, max: number }
 
 /**
  * Converts audio samples into min max buckets deduced via bucketCount

@@ -128,7 +128,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
             </Map>
             </div>
             <span className = {styles.locationNav}>
-                {geoError && (<>Please select a location to continue</>)}
+                {geoError && (<>Error finding your location, please use the searchbar</>)}
                 <button className = {styles.continueBtn} type="button" onClick={onConfirm}>Continue</button>
             </span>
         </>

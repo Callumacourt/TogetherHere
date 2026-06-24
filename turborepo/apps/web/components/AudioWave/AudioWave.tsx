@@ -106,7 +106,7 @@ const AudioWave = forwardRef(function AudioWave(
       gap: GAP,
       context: ctx,
       radius: RADIUS,
-      scrubberHeight: variant === 'recording' ? 30 : cssHeight,
+      scrubberHeight: 50
     });
   }, [playedPercent, cssWidth, cssHeight, resizedPeaks]);
 
@@ -130,7 +130,7 @@ const AudioWave = forwardRef(function AudioWave(
           gap: GAP,
           context: ctx,
           radius: RADIUS,
-          scrubberHeight: variant === 'recording' ? 30 : cssHeight,
+          scrubberHeight: 50,
         });
       },
     }),
@@ -168,7 +168,7 @@ const AudioWave = forwardRef(function AudioWave(
       gap: GAP,
       context: ctx,
       radius: RADIUS,
-      scrubberHeight: variant === 'recording' ? 30 : cssHeight,
+      scrubberHeight: 50
     });
   };
 
