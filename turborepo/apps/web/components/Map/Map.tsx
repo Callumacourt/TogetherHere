@@ -69,35 +69,20 @@ export default function MapComponent() {
     },
   ]
 
-  
-  // Prefetch image and audio on mount for performance
   useEffect(() => {
-    mockData.forEach(({ imgUrl, audioUrl }) => {
+    mockData.forEach(({ imgUrl }) => {
       const img = new Image();
       img.src = imgUrl;
-
-      if (peakCache.has(audioUrl)) return; // already decoded
-
-      fetch(audioUrl)
-        .then(r => r.arrayBuffer())
-        .then(buf => {
-          const ac = new OfflineAudioContext(1, 1, 44100);
-          return ac.decodeAudioData(buf);
-        })
-        .then(decoded => {
-          const bucketCount = Math.max(1, Math.round(300 * window.devicePixelRatio));
-          peakCache.set(audioUrl, computePeaks(decoded.getChannelData(0), bucketCount));
-        })
-        .catch(() => {});
     });
 }, []);
-  
+
   return (
     <div className={styles.mapContainer}>
     <Map
         reuseMaps
         mapboxAccessToken= {process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
         maxBounds={bounds}
+        onIdle={(e) => e.target.stop()}
         initialViewState={
             {
                 longitude: -3.1832,

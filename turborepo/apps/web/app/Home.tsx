@@ -113,13 +113,14 @@ export default function Home() {
         <small>North Street. 12:54PM</small>
       </div>
           <p>
-            We're building an archive of the things we feel pinned to the exact
-            places where we felt them. A private diary scattered across public spaces.
+            An archive of the things we feel pinned to the
+            places we felt them. A diary scattered across public spaces and 
+            simulatenously a diary of our public spaces.
           </p>
           <p>
-              If you have a thought you want to leave behind before we launch
+              If you have a moment you want to leave on launch
           </p>
-        <button onClick={() => setModalOpen(true)} className={styles.cta2}>Leave it here</button>
+        <button onClick={() => setModalOpen(true)} className={styles.cta2}>Open this</button>
     </div>
 </section>
   <AnimatePresence>

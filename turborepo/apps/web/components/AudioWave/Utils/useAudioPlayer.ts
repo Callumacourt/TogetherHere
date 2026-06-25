@@ -20,33 +20,31 @@ export default function useAudioPlayer(audioUrl: string) {
     const [playbackPercent, setPlaybackPercent] = useState(0);
 
     async function fetchPeaks() {
-        if (peakCache.has(audioUrl)) {
-            setPeaks(peakCache.get(audioUrl)!);
-            return;
-        }
-        try {
-            const res = await fetch(audioUrl);
-            if (!audioContextRef.current) return;
+    if (peakCache.has(audioUrl)) {
+        setPeaks(peakCache.get(audioUrl)!);
+        return;
+    }
+    try {
+        const buf = await fetch(audioUrl).then(r => r.arrayBuffer());
+        const decoded = await new OfflineAudioContext(1, 1, 44100).decodeAudioData(buf);
+        const channelData = decoded.getChannelData(0);
+        if (!channelData.length) return;
 
-            const buffer = await audioContextRef.current.decodeAudioData(await res.arrayBuffer());
-            const channelData = buffer.getChannelData(0);
-            if (!channelData.length) return;
+        const bucketCount = Math.max(1, Math.round(300 * window.devicePixelRatio));
+        const computed = computePeaks(channelData, bucketCount);
+        if (!computed.length) return;
 
-            const bucketCount = Math.max(1, Math.round(300 * window.devicePixelRatio));
-            const computed = computePeaks(channelData, bucketCount);
-            if (!computed.length) return;
-
-            setPeaks(computed);
-            peakCache.set(audioUrl, computed);
-        } catch (err: any) {
-            console.log(`Unable to fetch audio: ${err.message}`);
-        }
+        peakCache.set(audioUrl, computed);
+        setPeaks(computed);
+    } catch (err: any) {
+        console.log(`Unable to fetch audio: ${err.message}`);
+    }
     }
 
     // Setup audio element and context — reruns when audioUrl changes
     useEffect(() => {
         audioRef.current = new Audio(audioUrl);
-        audioRef.current.preload = "auto";
+        audioRef.current.preload = "metadata";
 
         setIsPlaying(false);
         setPlaybackPercent(0);
@@ -64,10 +62,10 @@ export default function useAudioPlayer(audioUrl: string) {
         audio.addEventListener("ended", onEnded);
 
         return () => {
+            cancelAnimationFrame(rafID.current);
             audio.removeEventListener("ended", onEnded);
             audio.removeEventListener("loadedmetadata", onLoadedMetadata);
-            cancelAnimationFrame(rafID.current);
-            try { audio.pause(); } catch {}
+            try { audio.pause(); audio.src = ""; } catch {} 
             audioContextRef.current?.close().catch(() => {});
             audioRef.current = null;
             audioContextRef.current = null;
@@ -95,6 +93,7 @@ export default function useAudioPlayer(audioUrl: string) {
             setIsPlaying(true);
 
             const animate = (t?: number) => {
+                if (rafID.current !== myId) return;
                 const a = audioRef.current;
                 if (!a || a.paused || a.ended) return;
 
@@ -113,7 +112,8 @@ export default function useAudioPlayer(audioUrl: string) {
                 rafID.current = requestAnimationFrame(animate);
             };
 
-            rafID.current = requestAnimationFrame(animate);
+            const myId = requestAnimationFrame(animate);
+            rafID.current = myId;
         } catch (err) {
             console.log(err);
         }
