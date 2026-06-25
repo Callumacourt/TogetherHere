@@ -7,7 +7,8 @@
 .locationSection,
 .recordSection,
 .reviewSection,
-.photoSection {
+.photoSection,
+.successSection {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -123,6 +124,16 @@
     font-weight: 600;
 }
 
+.spinnerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.successSection {
+    display: flex;
+    align-items: center;
+}
 
 @media (min-width: 1024px) {
 .modalContainer {

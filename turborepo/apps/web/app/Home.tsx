@@ -1,5 +1,4 @@
 'use client'
-
 import styles from "../styles/Hero.module.css";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -9,7 +8,8 @@ const Map = dynamic(() => import("../components/Map/Map"), {
 });
 import { useState } from "react";
 import VoiceModal from "../components/VoiceNote/VoiceNoteModal";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence } from "motion/react";;
+import { ClipLoader } from "react-spinners";
 
 export default function Home() {
 
@@ -76,9 +76,16 @@ export default function Home() {
               />
               <button type="submit" className={styles.submitButton} aria-label="Submit">
                 {loading ? (
-                  <span className={styles.spinner} aria-hidden="true" />
-                ) : sent ? (
-                  <svg className={styles.checkIcon} viewBox="0 0 24 24" aria-hidden="true">
+                  <div className = {styles.spinnerContainer}>
+                  <ClipLoader
+                  color="black"
+                  loading = {loading}
+                  size={25}
+                  aria-label = "Loading spinner"
+                />
+                </div>
+                ) : sent === true ? (
+                  <svg className={styles.checkIcon} viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (

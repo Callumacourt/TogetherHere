@@ -5,8 +5,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import styles from "./Map.module.css";
 import PopupCard from "./Popup/PopupCard"
 import WaveForm from "./WaveForm/WaveForm";
-import { peakCache } from "../AudioWave/Utils/useAudioPlayer";
-import { computePeaks } from "../AudioWave/Utils/drawingUtils";
 
 type Note = {
     id: number;

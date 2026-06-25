@@ -242,6 +242,35 @@ body {
   border-radius: 24px;
 }
 
+.spinnerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.checkIcon path {
+  fill: none;
+  stroke: black;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: drawTick 0.35s ease forwards;
+}
+
+
+@keyframes drawTick {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* ==========================================
    DESKTOP STYLES (Your Refined Layout)
    ========================================== */

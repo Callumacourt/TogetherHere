@@ -58,7 +58,6 @@ const AudioWave = forwardRef(function AudioWave(
     [peaks, cssWidth]
   );
   
-  // 
   useLayoutEffect(() => {
     const canvas = baseCanvasRef.current;
     if (!canvas) return;
@@ -118,7 +117,7 @@ const AudioWave = forwardRef(function AudioWave(
         if (isScrubbing.current) return;
         const canvas = overlayCanvasRef.current;
         if (!canvas) return;
-        if (!overlayCtxRef.current) overlayCtxRef.current = canvas.getContext("2d");
+        overlayCtxRef.current = canvas.getContext("2d");
         const ctx = overlayCtxRef.current;
         if (!ctx) return;
         ctx.clearRect(0, 0, cssWidth, cssHeight);

@@ -4,7 +4,6 @@ import type { AudioWaveHandle } from "../AudioWave";
 
 type Peak = { min: number; max: number };
 
-// Persists across instances so reopening the same popup skips refetching
 export const peakCache = new Map<string, Peak[]>();
 
 export default function useAudioPlayer(audioUrl: string) {
@@ -19,36 +18,41 @@ export default function useAudioPlayer(audioUrl: string) {
     const [peaks, setPeaks] = useState<Peak[]>([]);
     const [playbackPercent, setPlaybackPercent] = useState(0);
 
-    async function fetchPeaks() {
-    if (peakCache.has(audioUrl)) {
-        setPeaks(peakCache.get(audioUrl)!);
-        return;
-    }
-    try {
-        const buf = await fetch(audioUrl).then(r => r.arrayBuffer());
-        const decoded = await new OfflineAudioContext(1, 1, 44100).decodeAudioData(buf);
-        const channelData = decoded.getChannelData(0);
-        if (!channelData.length) return;
+    async function fetchPeaks(urlToFetch: string) {
+        if (peakCache.has(urlToFetch)) {
+            setPeaks(peakCache.get(urlToFetch)!);
+            return;
+        }
+        try {
+            const buf = await fetch(urlToFetch).then(r => r.arrayBuffer());
+            const decoded = await new OfflineAudioContext(1, 1, 44100).decodeAudioData(buf);
+            const channelData = decoded.getChannelData(0);
+            if (!channelData.length) return;
 
-        const bucketCount = Math.max(1, Math.round(300 * window.devicePixelRatio));
-        const computed = computePeaks(channelData, bucketCount);
-        if (!computed.length) return;
+            const bucketCount = Math.max(1, Math.round(300 * window.devicePixelRatio));
+            const computed = computePeaks(channelData, bucketCount);
+            if (!computed.length) return;
 
-        peakCache.set(audioUrl, computed);
-        setPeaks(computed);
-    } catch (err: any) {
-        console.log(`Unable to fetch audio: ${err.message}`);
-    }
+            // Only update cache/state if the active url hasn't changed while we were fetching
+            if (audioUrl === urlToFetch) {
+                peakCache.set(urlToFetch, computed);
+                setPeaks(computed);
+            }
+        } catch (err: any) {
+            console.log(`Unable to fetch audio: ${err.message}`);
+        }
     }
 
-    // Setup audio element and context — reruns when audioUrl changes
     useEffect(() => {
-        audioRef.current = new Audio(audioUrl);
-        audioRef.current.preload = "metadata";
+        if (!audioUrl) return;
+
+        const audio = new Audio(audioUrl);
+        audio.preload = "auto";
+        audioRef.current = audio;
 
         setIsPlaying(false);
         setPlaybackPercent(0);
-        fetchPeaks();
+        fetchPeaks(audioUrl);
 
         const onEnded = () => {
             cancelAnimationFrame(rafID.current);
@@ -56,10 +60,19 @@ export default function useAudioPlayer(audioUrl: string) {
             setPlaybackPercent(1);
         };
         
-        const audio = audioRef.current;
-        const onLoadedMetadata = () => setDuration(audio.duration);
+        const onLoadedMetadata = () => {
+            if (Number.isFinite(audio.duration)) {
+                setDuration(audio.duration);
+            }
+        };
+
         audio.addEventListener("loadedmetadata", onLoadedMetadata);
         audio.addEventListener("ended", onEnded);
+
+        // If metadata is already loaded implicitly
+        if (audio.readyState >= 1 && Number.isFinite(audio.duration)) {
+            setDuration(audio.duration);
+        }
 
         return () => {
             cancelAnimationFrame(rafID.current);
@@ -81,7 +94,10 @@ export default function useAudioPlayer(audioUrl: string) {
         const audio = audioRef.current;
         if (!audio) return;
 
-        if (audio.duration > 0 && audio.currentTime >= audio.duration) {
+        // Ensure we have a valid duration before evaluating skip resets
+        const actualDuration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : duration;
+
+        if (actualDuration > 0 && audio.currentTime >= actualDuration) {
             audio.currentTime = 0;
             setPlaybackPercent(0);
         }
@@ -92,28 +108,30 @@ export default function useAudioPlayer(audioUrl: string) {
             await audio.play();
             setIsPlaying(true);
 
+            // Synchronous setup block to eliminate first frame animation race conditions
+            let currentId: number;
+            
             const animate = (t?: number) => {
-                if (rafID.current !== myId) return;
+                if (rafID.current !== currentId) return;
                 const a = audioRef.current;
                 if (!a || a.paused || a.ended) return;
 
-                const percent = Number.isFinite(a.duration) && a.duration > 0
-                    ? a.currentTime / a.duration
-                    : 0;
+                const currentDuration = Number.isFinite(a.duration) && a.duration > 0 ? a.duration : duration;
+                const percent = currentDuration > 0 ? a.currentTime / currentDuration : 0;
 
                 waveRef.current?.update(percent);
 
-                // throttle React state to ~10fps; canvas updates every frame via waveRef
                 if (!lastStateSync.current || (t && t - lastStateSync.current > 100)) {
                     setPlaybackPercent(percent);
                     lastStateSync.current = t ?? Date.now();
                 }
 
-                rafID.current = requestAnimationFrame(animate);
+                currentId = requestAnimationFrame(animate);
+                rafID.current = currentId;
             };
 
-            const myId = requestAnimationFrame(animate);
-            rafID.current = myId;
+            currentId = requestAnimationFrame(animate);
+            rafID.current = currentId;
         } catch (err) {
             console.log(err);
         }
@@ -127,12 +145,13 @@ export default function useAudioPlayer(audioUrl: string) {
 
     function handleSkip(audioFraction: number) {
         const audio = audioRef.current;
-        if (!audio || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
+        const currentDuration = audio && Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : duration;
+        if (!audio || currentDuration <= 0) return;
 
-        const time = audioFraction * audio.duration;
+        const time = audioFraction * currentDuration;
         audio.currentTime = time;
         setPlaybackPercent(audioFraction);
     }
 
-    return {duration, isPlaying, peaks, playbackPercent, waveRef, handlePlay, handlePause, handleSkip };
+    return { duration, isPlaying, peaks, playbackPercent, waveRef, handlePlay, handlePause, handleSkip };
 }

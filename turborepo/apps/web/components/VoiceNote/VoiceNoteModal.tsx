@@ -10,6 +10,8 @@ import PhotoStep from "./steps/PhotoStep";
 import useImageIntake from "./hooks/useImageIntake";
 import StyledAudioPlayer from "../StyledAudioPlayer/StyledAudioPlayer";
 import ConfirmClosing from "../ConfirmClosing.tsx/ConfirmClosing";
+import { ClipLoader } from "react-spinners";
+import SuccessStep from "./steps/SuccessStep";
 type Prop = { onClose: () => void }
 
 export default function VoiceModal ({onClose} : Prop) {
@@ -18,6 +20,8 @@ export default function VoiceModal ({onClose} : Prop) {
     const imageIntake = useImageIntake();
     const [ closing, setClosing ] = useState<boolean>(false);
     const [ pin, setPin ] = useState<{lat: number, lng: number} | null>(null);
+    const [ submitting, setSubmitting ] = useState<boolean>(false);
+    const [ submitError, setSubmitError ] = useState<string | null>(null);
     const isPortrait = !!imageIntake.aspectRatio && imageIntake.aspectRatio < 1;
    
     const audioURL : string | null = useMemo(() => recorder.audioBlob ? URL.createObjectURL(recorder.audioBlob) : null, [recorder.audioBlob])
@@ -46,12 +50,31 @@ export default function VoiceModal ({onClose} : Prop) {
 
     // -- Modal progression handlers -- //
     async function handleSubmit () {
-        const data = new FormData();
-        data.append('audio', recorder.audioBlob!);
-        data.append('lat', String(pin!.lat));
-        data.append('lon', String(pin!.lng));
+      if (!recorder.audioBlob || !imageIntake.file || !pin || !pin.lng || !pin.lat) {
+        throw new Error("Missing data to submit the form")
+      }
 
-        await fetch ('/api/voice-note', { method: 'POST', body: data });
+      setSubmitting(true);
+      const data = new FormData();
+      data.append('audio', recorder.audioBlob!);
+      data.append('imgFile', imageIntake.file);
+      data.append('lat', String(pin!.lat));
+      data.append('lng', String(pin!.lng));
+
+      const res = await fetch("/api/voice-note", {
+        method: "POST",
+        body: data,
+      })
+
+      if (!res.ok) {
+        const error = await res.json();
+        setSubmitting(false);
+        setSubmitError(error.message);
+        return;
+      }
+
+      setSubmitting(false);
+      setStep("success");
     }
 
     function handleReturn () {
@@ -77,7 +100,7 @@ export default function VoiceModal ({onClose} : Prop) {
           transition={{type: "tween", duration: 0.2, ease: "easeOut"}}
           className={styles.modalContainer}>  
           <div className={styles.buttonRow}>
-            {step !== 'location' && (
+            {step !== 'location' && step !== "success" && (
             <button className={styles.prevBtn} onClick={handleReturn}>
               <Image
                 src="/icons/white-arrow-left.svg"
@@ -87,14 +110,16 @@ export default function VoiceModal ({onClose} : Prop) {
               />
             </button>
             )}
-            <button className={styles.closeBtn} onClick={() => setClosing(true)}>
+            {step !== "success" && (
+              <button className={styles.closeBtn} onClick={() => setClosing(true)}>
               <Image
                 src="/icons/close-x.svg"
                 width={32}
                 height={32}
                 alt="Close"
               />
-            </button>
+              </button>
+            )}
           </div>
 
           {closing && (
@@ -151,13 +176,30 @@ export default function VoiceModal ({onClose} : Prop) {
               </div>
               <span className = {styles.reviewButtons}>
                 <button onClick={handleReset}>Re-record</button>  
+                {submitting ? (
+                  <div className = {styles.spinnerContainer}>
+                    <ClipLoader
+                      color="white"
+                      loading = {submitting}
+                      size={25}
+                      aria-label = "Loading spinner"
+                    />
+                  </div>
+                ) : (
                 <button onClick={async () => {
                   await recorder.stop();
                   await handleSubmit();
                 }}>Post</button>
+              )
+              }
               </span>
             </div>
-          )}
+            )}
+            {step === "success" && (
+              <div className = {styles.successSection}>
+                <SuccessStep/>
+              </div>
+            )}
         </motion.div>
     )
 }

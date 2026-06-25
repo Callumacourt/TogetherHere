@@ -12,6 +12,7 @@ type FocusPoint = {
 
 export default function useImageIntake () {
     const [imageUrl, setImgUrl] = useState<string | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null); 
     const [dimensions, setDimensions] = useState<ImageDimensions | null>(null);
     const [focus, setFocus] = useState<FocusPoint>({ x: 50, y: 50 });
 
@@ -27,6 +28,7 @@ export default function useImageIntake () {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const imgFile = e.target.files?.[0];
         if (!imgFile) return;
+        setImageFile(imgFile);
 
         if (imageUrl) {
             URL.revokeObjectURL(imageUrl);
@@ -65,6 +67,7 @@ export default function useImageIntake () {
 
     return {
         imageUrl: imageUrl,
+        file: imageFile,
         clearImage,
         handleFileChange: handleFileChange,
         dimensions,
