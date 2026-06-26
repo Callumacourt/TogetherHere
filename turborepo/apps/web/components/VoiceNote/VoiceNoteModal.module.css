@@ -132,7 +132,7 @@
 
 .successSection {
     display: flex;
-    align-items: center;
+    padding: 1vh 4vw;
 }
 
 @media (min-width: 1024px) {

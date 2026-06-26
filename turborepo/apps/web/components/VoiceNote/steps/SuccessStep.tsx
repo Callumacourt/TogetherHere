@@ -1,17 +1,34 @@
 import styles from "./SuccessStep.module.css";
+import { IconCheck } from '@tabler/icons-react';
+import Image from "next/image";
 
-export default function SuccessStep () {
-    return (
-        <div className = {styles.successContainer}>
-            <span>
-            <h2>Thanks for contributing to our project</h2>
-            <p>Keep an eye out on our newsletter for updates</p>
-            </span>
+type Props = {
+    onClose: () => void
+}
 
-            <span>
-            <h3>Want to work with us in enabling communities?</h3>
-            <p>Contact Us</p>
-            </span>
+export default function SuccessStep ({onClose} : Props ) {
+  return (
+    <div className={styles.successContainer}>
+
+      <div className={styles.body}>
+        <div className={styles.checkContainer}>
+          <IconCheck size={24} stroke={1.5} color="rgba(255,255,255,0.9)" />
         </div>
-    )
+        <h2 className={styles.heading}>Thanks for contributing</h2>
+        <p className={styles.sub}>Your note has been submitted. Keep an eye out on our newsletter for updates.</p>
+      </div>
+
+      <div className={styles.footer}>
+        <span className={styles.contactUs}>
+          <p className={styles.contactLabel}>Want to work with us?</p>
+          <span className={styles.contactLink}>
+            <p>Contact us</p>
+            <Image src={"/icons/white-arrow-right.svg"} alt="->" width={16} height={16} />
+          </span>
+        </span>
+        <button onClick={onClose} className={styles.doneBtn}>Done</button>
+      </div>
+
+    </div>
+  );
 }

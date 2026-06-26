@@ -197,7 +197,7 @@ export default function VoiceModal ({onClose} : Prop) {
             )}
             {step === "success" && (
               <div className = {styles.successSection}>
-                <SuccessStep/>
+                <SuccessStep onClose={onClose}/>
               </div>
             )}
         </motion.div>

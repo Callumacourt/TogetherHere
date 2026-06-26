@@ -1,5 +1,117 @@
 .successContainer {
     display: flex;
     flex-direction: column;
-    gap: 20vh;
+    height: 100%;
+}
+
+.body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: clamp(24px, 4vw, 48px);
+    gap: 12px;
+}
+
+.checkContainer {
+    width: clamp(44px, 5vw, 56px);
+    height: clamp(44px, 5vw, 56px);
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.heading {
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 500;
+    color: #fff;
+    margin: 0;
+    line-height: 1.25;
+}
+
+.sub {
+    font-size: clamp(13px, 1.4vw, 16px);
+    color: rgba(255, 255, 255, 0.45);
+    margin: 0;
+    max-width: 340px;
+    line-height: 1.6;
+}
+
+.footer {
+    border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+    padding: clamp(14px, 2vw, 20px) clamp(20px, 3vw, 32px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.contactUs {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.contactLabel {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);
+    margin: 0;
+}
+
+.contactLink {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.contactLink p {
+    font-size: clamp(13px, 1.2vw, 15px);
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+}
+
+.doneBtn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 0.5px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: clamp(13px, 1.2vw, 15px);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+    .footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .doneBtn {
+        width: 100%;
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    .contactUs {
+        align-items: center;
+    }
+
+    .contactLabel {
+        display: none;
+    }
+
+    .contactLink p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.4);
+    }
 }
