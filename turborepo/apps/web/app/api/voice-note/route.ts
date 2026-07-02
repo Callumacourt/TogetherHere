@@ -1,17 +1,22 @@
 import { supabase } from "../../../lib/supabase"
 
-async function uploadFileToStorage (file: Blob) : Promise<string | null> {
-    const ext = file.type.split('/')[1].split(';')[0];
-    const filename = `${crypto.randomUUID()}.${ext}`;
-    const { data, error } = await supabase.storage.from("voice-notes").upload(filename, file);
-    if ( error ) {
-        console.error(error.message);
-        return null;
-        
-    } else {
-        const { data: urlData } = supabase.storage.from("voice-notes").getPublicUrl(data.path);
-        return urlData.publicUrl;
-    }
+async function uploadFileToStorage(file: Blob): Promise<string | null> {
+  const mime = file.type || "";
+  const ext =
+    mime.split("/").at(1)?.split(";").at(0)?.toLowerCase() || "webm";
+
+  const filename = `${crypto.randomUUID()}.${ext}`;
+
+  const { data, error } = await supabase.storage
+    .from("voice-notes")
+    .upload(filename, file);
+
+  if (error) {
+    console.error(error);
+    return null;
+  }
+
+  return data.path;
 }
 
 export async function POST(req: Request) {

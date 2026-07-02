@@ -43,3 +43,34 @@
 .mapLoading {
     pointer-events: none;
 }
+
+/* Mobile Landscape */
+@media only screen and (max-width: 1023px) and (orientation: landscape) {
+    .title {
+        padding-bottom: 0.5vh;
+        font-size: 0.9rem;
+    }
+
+    .mapContainer {
+        margin-bottom: 0.8vh;
+        min-height: clamp(80px, 35svh, 180px);
+    }
+
+    .searchBoxContainer {
+        margin-bottom: 0.8vh;
+        margin-top: 0.5vh;
+    }
+
+    .searchBoxContainer * {
+        font-size: 0.85rem !important;
+    }
+
+    .continueBtn {
+        font-size: 0.8rem;
+        padding: 0.5vh 1vw;
+    }
+
+    .locationNav {
+        gap: 8px;
+    }
+}

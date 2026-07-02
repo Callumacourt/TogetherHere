@@ -21,6 +21,17 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.nextBtn:active, .controlBtn:active {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(0.98);
+}
+
+.nextBtn:disabled, .controlBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .waveformContainer {
@@ -70,4 +81,57 @@
     .nextBtn, .controlBtn {
     padding: 1vh 2vw;
 }
+}
+
+/* Mobile Landscape */
+@media only screen and (max-width: 1023px) and (orientation: landscape) {
+    .recordContainer {
+        padding-bottom: 6svh;
+    }
+
+    .title {
+        padding-bottom: 0.5vh;
+        font-size: 0.95rem;
+    }
+
+    .waveformContainer {
+        flex: 1;
+        min-height: 50px;
+        max-height: clamp(100px, 40svh, 200px);
+        margin-bottom: 0.5vh;
+    }
+
+    .clipDuration {
+        font-size: 0.8rem;
+        padding-right: 0;
+        padding-top: 0.5vh;
+        padding-bottom: 1vh;
+    }
+
+    .nextBtn, .controlBtn {
+        padding: 0.6vh 1.5vw;
+        font-size: 0.75rem;
+    }
+
+    .nextBtn:active, .controlBtn:active {
+        transform: scale(0.96);
+        background-color: rgba(0, 0, 0, 0.15);
+    }
+
+    .btns {
+        gap: 6px;
+        padding: 0.5vh 0 0 0;
+    }
+
+    .playbackControls {
+        margin-bottom: 0.8vh;
+        gap: 8px;
+        font-size: 0.7rem;
+    }
+
+    .playbackControls button {
+        padding: 0.4vh 0.6vw;
+        min-width: 30px;
+        min-height: 24px;
+    }
 }

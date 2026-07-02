@@ -392,3 +392,181 @@ body {
   font-weight: 300;
   letter-spacing: 0.02em;
 }
+
+
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+  .heroContainer {
+    padding-top: 10vh;
+    padding-left: 12%;
+    justify-content: space-evenly;
+    padding-bottom: 5vh;
+  }
+
+  .heroTitle {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .emailSection {
+    margin-top: 3rem;
+    width: 90%;
+  }
+
+  .explanationContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 3vh 5%;
+  }
+
+  .explanationContent h2 {
+    font-size: 2.5rem;
+  }
+
+  .explanationContent p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+  }
+
+  .explanationImg {
+    width: 100%;
+    max-height: 60vh;
+  }
+
+  .mapSection {
+    padding: 2rem 5%;
+  }
+}
+
+/* Mobile Landscape */
+@media only screen and (max-width: 1023px) and (orientation: landscape) {
+  .heroContainer {
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+    height: auto;
+    min-height: 100svh;
+  }
+
+  .heroImg {
+    max-height: 70vh;
+  }
+
+  .heroTitle {
+    font-size: 1.3rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .heroSubtitle {
+    font-size: 0.7rem;
+    line-height: 1.1;
+  }
+
+  .heroSubtitle p {
+    margin: 0.05rem 0;
+  }
+
+  .emailSection {
+    width: 100%;
+    margin-top: 0.3rem;
+  }
+
+  .emailHeader {
+    font-size: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .inputWrapper {
+    max-width: 250px;
+  }
+
+  .emailInput {
+    padding: 0.4rem 2.5rem 0.4rem 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .explanationSection {
+    padding: 1rem 6%;
+    min-height: auto;
+  }
+
+  .explanationContent {
+    gap: 1rem;
+  }
+
+  .explanationContent h2 {
+    font-size: 1.3rem;
+  }
+
+  .explanationContent p {
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+
+  .explanationImg {
+    max-height: 50vh;
+    width: 100%;
+  }
+
+  .mapSection {
+    min-height: 100svh;
+    padding: 1rem 6%;
+  }
+
+  .mapSection canvas {
+    max-height: 85vh;
+  }
+}
+
+/* Voice modal landscape adjustments */
+@media only screen and (max-width: 1023px) and (orientation: landscape) {
+  .modalContainer {
+    height: 100svh;
+    min-height: 100%;
+    padding: 2vmin;
+    gap: 10px;
+  }
+
+  .stepTitle {
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .imgWrapper {
+    max-height: clamp(100px, 50svh, 300px);
+    min-height: 100px;
+  }
+
+  .explanationImg, .explanationImgContainer {
+    max-height: 200svh;
+  }
+
+  .explanationContent p {
+    margin-top: 10vh;
+  }
+
+  .reviewButtons button,
+  .nextBtn,
+  .controlBtn {
+    padding: 0.8vh 2.5vw;
+    font-size: 0.85rem;
+  }
+
+  .contentWrapper {
+    gap: 1vh;
+  }
+
+  .playbackControls {
+    margin-bottom: 1vh;
+  }
+
+  .cta2 {
+    margin-top: 5vh;
+  }
+}

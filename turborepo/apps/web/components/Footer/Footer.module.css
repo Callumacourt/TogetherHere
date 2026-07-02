@@ -11,11 +11,12 @@
 
 .inner {
   max-width: 1200px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   margin: 0 auto;
   display: flex;
-  flex-direction: column;
   gap: 10px;
-  align-items: flex-start;
 }
 
 .links {
@@ -42,9 +43,6 @@
   }
 
   .inner {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
     gap: 16px;
   }
 

@@ -75,7 +75,7 @@ export default function WelcomeEmail() {
               margin: "0 0 24px 0",
               letterSpacing: "-0.01em",
             }}>
-              Someone stood outside the train station last night.
+              Thank you for joining our project.
             </Text>
 
             <Img

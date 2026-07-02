@@ -68,7 +68,11 @@ export default function RecordStep({ recorder, onConfirm} : Props) {
             </p>
 
             <div className={styles.btns}>
-                <button className={styles.controlBtn} type="button" onClick={handleMain}>
+                <button 
+                    className={styles.controlBtn} 
+                    type="button" 
+                    onClick={handleMain}
+                >
                     {mainLabel}
                 </button>
 

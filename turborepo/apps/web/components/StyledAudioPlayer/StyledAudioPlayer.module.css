@@ -148,3 +148,50 @@
   line-height: 0;
   flex: 0 0 auto;
 }
+
+/* Mobile Landscape */
+@media only screen and (max-width: 1023px) and (orientation: landscape) {
+  .player {
+    gap: 0.5dvw;
+  }
+
+  .player :global(.rhap_time) {
+    min-width: 30px;
+    font-size: 0.65rem;
+  }
+
+  .time {
+    font-size: 0.65rem;
+    min-width: 50px;
+  }
+
+  .playBtn,
+  .volumeBtn {
+    padding: 2px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .volumePopup {
+    padding: 6px 4px;
+  }
+
+  .volumeSlider {
+    width: 16px;
+    height: 50px;
+  }
+
+  .progress {
+    height: 2px;
+  }
+
+  .progress::-webkit-slider-thumb {
+    width: 8px;
+    height: 8px;
+  }
+
+  .progress::-moz-range-thumb {
+    width: 8px;
+    height: 8px;
+  }
+}

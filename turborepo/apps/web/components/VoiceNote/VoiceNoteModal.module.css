@@ -135,6 +135,71 @@
     padding: 1vh 4vw;
 }
 
+/* Mobile Landscape */
+@media only screen and (max-width: 1023px) and (orientation: landscape) {
+    .modalContainer {
+        height: auto;
+        min-height: 100svh;
+        padding: 2vmin;
+        gap: 8px;
+    }
+
+    .stepTitle {
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    .buttonRow {
+        padding-top: 1vh;
+        gap: 10px;
+    }
+
+    .closeBtn, .prevBtn {
+        width: 24px;
+        height: 24px;
+    }
+
+    .locationSection,
+    .recordSection,
+    .reviewSection,
+    .photoSection,
+    .successSection {
+        flex: 1;
+        min-height: 0;
+    }
+
+    .reviewSection {
+        padding-bottom: 6svh;
+    }
+
+    .contentWrapper {
+        gap: 1vh;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .imgWrapper {
+        max-height: clamp(80px, 35svh, 250px);
+        min-height: 80px;
+        aspect-ratio: 4 / 5;
+    }
+
+    .reviewButtons {
+        padding: 1vh 0 0 0;
+    }
+
+    .reviewButtons button {
+        padding: 0.7vh 2.5vw;
+        font-size: 0.8rem;
+    }
+
+    .spinnerContainer {
+        padding: 0.7vh 2.5vw;
+    }
+}
+
 @media (min-width: 1024px) {
 .modalContainer {
     position: relative;

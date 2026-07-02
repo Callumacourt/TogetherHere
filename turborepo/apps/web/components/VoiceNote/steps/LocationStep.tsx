@@ -38,12 +38,14 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
     const pendingPin = useRef<{lat: number, lng: number} | null>(null);
 
     function onLocationGet (location : GeolocationPosition) {
-        if (!mapRef.current) return;
         const lng = location.coords.longitude;
         const lat = location.coords.latitude;
+        // Store the pin regardless of whether map is ready yet
         pendingPin.current = { lat, lng };
-        mapRef.current.flyTo({center: [lng, lat], zoom: 15});
-        onPinChange({lat, lng});
+        onPinChange({ lat, lng });
+        // Only flyTo if map is already loaded, otherwise onLoad will handle it
+        if (!mapRef.current) return;
+        mapRef.current.flyTo({ center: [lng, lat], zoom: 15 });
     }
     
     useEffect(() => {
@@ -94,7 +96,15 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
             )}
          <Map
             ref={mapRef}
-            onLoad={() => setMapInstance(mapRef.current?.getMap() ?? undefined)}
+            onLoad={() => {
+                setMapInstance(mapRef.current?.getMap() ?? undefined);
+                // If geolocation resolved before map loaded, fly now
+                if (pendingPin.current) {
+                    mapRef.current?.flyTo({ center: [pendingPin.current.lng, pendingPin.current.lat], zoom: 15 });
+                } else {
+                    setLoading(false);
+                }
+            }}
             onMoveEnd={() => {
                 setLoading(false);
                 if (pendingPin.current) {

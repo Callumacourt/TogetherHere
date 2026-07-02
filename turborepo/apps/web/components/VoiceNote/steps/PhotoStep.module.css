@@ -196,3 +196,75 @@
     padding: 1vh 2vw;
 }
 }
+
+/* Mobile Landscape */
+@media only screen and (max-width: 1023px) and (orientation: landscape) {
+    .photoStepContainer {
+        padding-bottom: 6svh;
+    }
+
+    .imgContainer {
+        max-height: clamp(80px, 35svh, 200px);
+        min-height: 80px;
+        margin-top: 1vh;
+        margin-bottom: 1vh;
+    }
+
+    .adjustControls {
+        gap: 8px;
+        flex-wrap: nowrap;
+        padding: 1vh 0;
+        justify-content: space-between;
+    }
+
+    .adjustHint {
+        font-size: 0.7rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .adjustButtons {
+        gap: 6px;
+        margin-left: 0;
+        flex-shrink: 0;
+    }
+
+    .adjustButtons button {
+        padding: 0.6vh 1.5vw;
+        font-size: 0.75rem;
+    }
+
+    .photoUpload {
+        padding: 0.6vh 1.5vw;
+        font-size: 0.85rem;
+    }
+
+    .cameraCapture {
+        padding: 0.6vh 1.5vw;
+        font-size: 0.85rem;
+    }
+
+    .uploadActions {
+        gap: 6px;
+    }
+
+    .imgButtons button {
+        padding: 0.7vh 2vw;
+        font-size: 0.8rem;
+    }
+
+    .btnSubgroup {
+        gap: 6px;
+        margin-right: 0;
+    }
+
+    .btnSubgroup button {
+        padding: 0.7vh 2vw;
+        font-size: 0.8rem;
+    }
+
+    .errorMsg {
+        height: 0.8rem;
+        font-size: 0.7rem;
+    }
+}
