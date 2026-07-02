@@ -5,7 +5,7 @@ import { VoiceRecorder } from "../types/types";
 export function useRecordStepState(recorder: VoiceRecorder, onConfirm: () => void) {
     const [elapsedMs, setElapsedMs] = useState<number>(recorder.totalTime || 0);
     const [confirmingDelete, setConfirmingDelete] = useState<boolean>(false);
-    const audioPlayer = useAudioPlayer(recorder.previewUrl || "", elapsedMs / 1000);
+    const audioPlayer = useAudioPlayer(recorder.previewUrl || "");
 
     const hasPreview = Boolean(recorder.previewUrl) && audioPlayer.peaks.length > 0;
     const showPausedUi = recorder.phase === "paused" || (recorder.phase === "idle" && hasPreview);
