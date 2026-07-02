@@ -2,12 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { useAutoPause } from "./useAutoPause";
 import { 
   UseVoiceRecorderOptions,
-   VoiceRecorder, MicPermission, 
-   RecorderPhase 
-  } from "../types/types";
+  VoiceRecorder, MicPermission, 
+  RecorderPhase 
+} from "../types/types";
+
+import { webmHelper } from "../../../utils/webMHelper";
 
 export default function useVoiceRecorder(
- { active = true }: UseVoiceRecorderOptions = {}
+  { active = true }: UseVoiceRecorderOptions = {}
 ): VoiceRecorder {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -27,7 +29,6 @@ export default function useVoiceRecorder(
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
-    
     setPreviewUrl(nextUrl);
   }
   
@@ -89,27 +90,51 @@ export default function useVoiceRecorder(
       // Init audio stream and recorder
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      const recorder = new MediaRecorder(stream);
-      recorderRef.current = recorder;
+      const mimeType =
+        MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : undefined;
 
-      recorder.ondataavailable = (e: BlobEvent) => {
+      const recorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
+
+      recorderRef.current = recorder;
+      
+      recorder.ondataavailable = async (e: BlobEvent) => {
         if (e.data && e.data.size > 0) {
           chunksRef.current.push(e.data);
         }
 
         // Build a Blob of chunks up to pause for AudioWave on pause
         if (isPauseFlushRef.current) {
-          const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
-          const url = URL.createObjectURL(blob);
-          replacePreviewUrl(url);
-          setAudioBlob(blob);
-          isPauseFlushRef.current = false;
+          // Reset the ref immediately to prevent race conditions
+          isPauseFlushRef.current = false; 
+          
+          const rawBlob = new Blob(chunksRef.current, { 
+            type: recorder.mimeType || "audio/webm" 
+          });
+          
+          try {
+            const fixedBlob = await webmHelper(rawBlob, accumulatedMsRef.current);
+            const url = URL.createObjectURL(fixedBlob);
+            replacePreviewUrl(url);
+            setAudioBlob(fixedBlob);
+          } catch (err) {
+            console.error("Failed to fix WebM duration on pause", err);
+          }
         }
       };
+      
+      recorder.onstop = async () => {
+        const blob = new Blob(chunksRef.current, {
+          type: recorder.mimeType || "audio/webm",
+        });
 
-      recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        setAudioBlob(blob);
+        const fixedBlob = await webmHelper(blob, accumulatedMsRef.current);
+        const url = URL.createObjectURL(fixedBlob);
+        replacePreviewUrl(url);
+        setAudioBlob(fixedBlob);
         setIsRecording(false);
       };
       
@@ -126,14 +151,14 @@ export default function useVoiceRecorder(
   function handleResumeRecording() {
     const r = recorderRef.current;
     if (r && r.state === 'paused') {
-        if (segmentStartMsRef.current == null) {
-            segmentStartMsRef.current = Date.now();
-        }
-        streamRef.current?.getAudioTracks().forEach(t => (t.enabled = true));
-        try { r.resume(); } catch { return; }
-        setPhase('recording');
-        setIsRecording(true);
-        return;
+      if (segmentStartMsRef.current == null) {
+        segmentStartMsRef.current = Date.now();
+      }
+      streamRef.current?.getAudioTracks().forEach(t => (t.enabled = true));
+      try { r.resume(); } catch { return; }
+      setPhase('recording');
+      setIsRecording(true);
+      return;
     };
   };
 

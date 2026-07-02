@@ -41,7 +41,7 @@ export type AudioWaveHandle = {
 const AudioWave = forwardRef(function AudioWave(
   { variant, playedPercent, duration, isPlaying, handleSkip, handlePause, handlePlay, peaks }: AudioWaveProps,
   ref: React.Ref<AudioWaveHandle | null>
-  ) {
+) {
   const baseCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const baseCtxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -91,6 +91,8 @@ const AudioWave = forwardRef(function AudioWave(
 
   // Redraw overlay in response to prop changes (initial mount, skip while paused)
   useEffect(() => {
+    if (isPlaying || isScrubbing.current) return;
+
     const canvas = overlayCanvasRef.current;
     if (!canvas) return;
     if (!overlayCtxRef.current) overlayCtxRef.current = canvas.getContext("2d");
@@ -107,7 +109,7 @@ const AudioWave = forwardRef(function AudioWave(
       radius: RADIUS,
       scrubberHeight: 50
     });
-  }, [playedPercent, cssWidth, cssHeight, resizedPeaks]);
+  }, [playedPercent, cssWidth, cssHeight, resizedPeaks, isPlaying]);
 
   // RAF overlay update to bypass React render cycle giving 60fps animation
   useImperativeHandle(
@@ -142,7 +144,6 @@ const AudioWave = forwardRef(function AudioWave(
     return Math.min(1, Math.max(0, (pointer.clientX - rect.left) / rect.width));
   };
 
-  
   const handlePointerDown = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
     isScrubbing.current = true;
     wasPlaying.current = isPlaying;

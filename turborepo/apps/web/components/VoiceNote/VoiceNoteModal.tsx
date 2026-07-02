@@ -12,6 +12,7 @@ import StyledAudioPlayer from "../StyledAudioPlayer/StyledAudioPlayer";
 import ConfirmClosing from "../ConfirmClosing.tsx/ConfirmClosing";
 import { ClipLoader } from "react-spinners";
 import SuccessStep from "./steps/SuccessStep";
+
 type Prop = { onClose: () => void }
 
 export default function VoiceModal ({onClose} : Prop) {
@@ -172,7 +173,7 @@ export default function VoiceModal ({onClose} : Prop) {
                     />
                   )}
                 </div>
-                <StyledAudioPlayer src={audioURL}/>
+                <StyledAudioPlayer duration = {recorder.totalTime / 1000} src={audioURL}/>
               </div>
               <span className = {styles.reviewButtons}>
                 <button onClick={handleReset}>Re-record</button>  

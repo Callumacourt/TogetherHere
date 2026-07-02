@@ -1,9 +1,10 @@
-export function formatTime(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
-}
 
+export function formatTime(s: number) {
+    const clamped = Math.max(0, Math.floor(s));
+    const m = Math.floor(clamped / 60);
+    const sec = clamped % 60;
+    return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+    }
 /**
  * Matches CSS to internal pixel size so canvas scales properly
  */

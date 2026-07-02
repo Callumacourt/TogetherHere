@@ -1,157 +1,183 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { computePeaks } from "./drawingUtils";
 import type { AudioWaveHandle } from "../AudioWave";
 
 type Peak = { min: number; max: number };
-
-export const peakCache = new Map<string, Peak[]>();
+type CacheEntry = { peaks: Peak[]; duration: number; buffer: AudioBuffer };
+export const peakCache = new Map<string, CacheEntry>();
 
 export default function useAudioPlayer(audioUrl: string) {
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const rafID = useRef<number>(0);
-    const lastStateSync = useRef<number>(0);
-    const waveRef = useRef<AudioWaveHandle | null>(null);
-    const [duration, setDuration] = useState(0);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
+  const sourceRef = useRef<AudioBufferSourceNode | null>(null);
 
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [peaks, setPeaks] = useState<Peak[]>([]);
-    const [playbackPercent, setPlaybackPercent] = useState(0);
+  const rafID = useRef<number>(0);
+  const waveRef = useRef<AudioWaveHandle | null>(null);
 
-    async function fetchPeaks(urlToFetch: string) {
-        if (peakCache.has(urlToFetch)) {
-            setPeaks(peakCache.get(urlToFetch)!);
-            return;
-        }
-        try {
-            const buf = await fetch(urlToFetch).then(r => r.arrayBuffer());
-            const decoded = await new OfflineAudioContext(1, 1, 44100).decodeAudioData(buf);
-            const channelData = decoded.getChannelData(0);
-            if (!channelData.length) return;
+  const durationRef = useRef(0);
+  const startTimeRef = useRef(0); 
+  const pausedTimeRef = useRef(0); // Tracks current playback position in seconds
 
-            const bucketCount = Math.max(1, Math.round(300 * window.devicePixelRatio));
-            const computed = computePeaks(channelData, bucketCount);
-            if (!computed.length) return;
+  const [duration, setDuration] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [peaks, setPeaks] = useState<Peak[]>([]);
+  const [playbackPercent, setPlaybackPercent] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
-            // Only update cache/state if the active url hasn't changed while we were fetching
-            if (audioUrl === urlToFetch) {
-                peakCache.set(urlToFetch, computed);
-                setPeaks(computed);
-            }
-        } catch (err: any) {
-            console.log(`Unable to fetch audio: ${err.message}`);
-        }
+  // Lazy initialize AudioContext safely
+  const getAudioContext = () => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return audioCtxRef.current;
+  };
+
+  async function fetchPeaksAndDuration(urlToFetch: string) {
+    const cached = peakCache.get(urlToFetch);
+    if (cached) {
+      setPeaks(cached.peaks);
+      audioBufferRef.current = cached.buffer;
+      durationRef.current = cached.duration;
+      setDuration(cached.duration);
+      return;
     }
 
-    useEffect(() => {
-        if (!audioUrl) return;
+    try {
+      const buf = await fetch(urlToFetch).then(r => r.arrayBuffer());
+      const ctx = getAudioContext();
+      
+      // Decodes raw WebM payload completely into an immutable PCM buffer
+      const decoded = await ctx.decodeAudioData(buf);
 
-        const audio = new Audio(audioUrl);
-        audio.preload = "auto";
-        audioRef.current = audio;
+      const peaks = computePeaks(
+        decoded.getChannelData(0),
+        Math.round(300 * window.devicePixelRatio)
+      );
 
-        setIsPlaying(false);
-        setPlaybackPercent(0);
-        fetchPeaks(audioUrl);
+      const entry = { peaks, duration: decoded.duration, buffer: decoded };
+      peakCache.set(urlToFetch, entry);
 
-        const onEnded = () => {
-            cancelAnimationFrame(rafID.current);
-            setIsPlaying(false);
-            setPlaybackPercent(1);
-        };
-        
-        const onLoadedMetadata = () => {
-            if (Number.isFinite(audio.duration)) {
-                setDuration(audio.duration);
-            }
-        };
+      setPeaks(peaks);
+      audioBufferRef.current = decoded;
+      durationRef.current = decoded.duration;
+      setDuration(decoded.duration);
+    } catch (err) {
+      console.error("decode failed", err);
+    }
+  }
 
-        audio.addEventListener("loadedmetadata", onLoadedMetadata);
-        audio.addEventListener("ended", onEnded);
+  useEffect(() => {
+    if (!audioUrl) return;
 
-        // If metadata is already loaded implicitly
-        if (audio.readyState >= 1 && Number.isFinite(audio.duration)) {
-            setDuration(audio.duration);
-        }
+    // Reset layout position states on source swap
+    pausedTimeRef.current = 0;
+    setCurrentTime(0);
+    setPlaybackPercent(0);
+    durationRef.current = 0;
+    setDuration(0);
 
-        return () => {
-            cancelAnimationFrame(rafID.current);
-            audio.removeEventListener("ended", onEnded);
-            audio.removeEventListener("loadedmetadata", onLoadedMetadata);
-            try { audio.pause(); audio.src = ""; } catch {} 
-            audioContextRef.current?.close().catch(() => {});
-            audioRef.current = null;
-            audioContextRef.current = null;
-        };
-    }, [audioUrl]);
+    fetchPeaksAndDuration(audioUrl);
 
-    async function handlePlay() {
-        if (!audioContextRef.current) audioContextRef.current = new AudioContext();
-        if (audioContextRef.current?.state === "suspended") {
-            await audioContextRef.current.resume();
-        }
+    return () => {
+      cancelAnimationFrame(rafID.current);
+      if (sourceRef.current) {
+        try { sourceRef.current.stop(); } catch {}
+      }
+    };
+  }, [audioUrl]);
 
-        const audio = audioRef.current;
-        if (!audio) return;
+  const updatePlaybackUI = useCallback(() => {
+    const ctx = getAudioContext();
+    if (!audioBufferRef.current || ctx.state === "suspended") return;
 
-        // Ensure we have a valid duration before evaluating skip resets
-        const actualDuration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : duration;
+    let current = ctx.currentTime - startTimeRef.current;
+    const d = durationRef.current || 1;
 
-        if (actualDuration > 0 && audio.currentTime >= actualDuration) {
-            audio.currentTime = 0;
-            setPlaybackPercent(0);
-        }
-
-        cancelAnimationFrame(rafID.current);
-
-        try {
-            await audio.play();
-            setIsPlaying(true);
-
-            // Synchronous setup block to eliminate first frame animation race conditions
-            let currentId: number;
-            
-            const animate = (t?: number) => {
-                if (rafID.current !== currentId) return;
-                const a = audioRef.current;
-                if (!a || a.paused || a.ended) return;
-
-                const currentDuration = Number.isFinite(a.duration) && a.duration > 0 ? a.duration : duration;
-                const percent = currentDuration > 0 ? a.currentTime / currentDuration : 0;
-
-                waveRef.current?.update(percent);
-
-                if (!lastStateSync.current || (t && t - lastStateSync.current > 100)) {
-                    setPlaybackPercent(percent);
-                    lastStateSync.current = t ?? Date.now();
-                }
-
-                currentId = requestAnimationFrame(animate);
-                rafID.current = currentId;
-            };
-
-            currentId = requestAnimationFrame(animate);
-            rafID.current = currentId;
-        } catch (err) {
-            console.log(err);
-        }
+    if (current >= d) {
+      setIsPlaying(false);
+      setPlaybackPercent(0);
+      setCurrentTime(0);
+      pausedTimeRef.current = 0;
+      waveRef.current?.update(0);
+      cancelAnimationFrame(rafID.current);
+      return;
     }
 
-    function handlePause() {
-        audioRef.current?.pause();
-        cancelAnimationFrame(rafID.current);
-        setIsPlaying(false);
+    const p = current / d;
+    setPlaybackPercent(p);
+    setCurrentTime(current);
+    waveRef.current?.update(p);
+
+    rafID.current = requestAnimationFrame(updatePlaybackUI);
+  }, []);
+
+  async function handlePlay() {
+    if (!audioBufferRef.current) return;
+    const ctx = getAudioContext();
+    
+    if (ctx.state === "suspended") {
+      await ctx.resume();
     }
 
-    function handleSkip(audioFraction: number) {
-        const audio = audioRef.current;
-        const currentDuration = audio && Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : duration;
-        if (!audio || currentDuration <= 0) return;
-
-        const time = audioFraction * currentDuration;
-        audio.currentTime = time;
-        setPlaybackPercent(audioFraction);
+    if (sourceRef.current) {
+      try { sourceRef.current.stop(); } catch {}
     }
 
-    return { duration, isPlaying, peaks, playbackPercent, waveRef, handlePlay, handlePause, handleSkip };
+    const source = ctx.createBufferSource();
+    source.buffer = audioBufferRef.current;
+    source.connect(ctx.destination);
+
+    if (pausedTimeRef.current >= durationRef.current) {
+      pausedTimeRef.current = 0;
+    }
+
+    source.start(0, pausedTimeRef.current);
+    startTimeRef.current = ctx.currentTime - pausedTimeRef.current;
+    sourceRef.current = source;
+    setIsPlaying(true);
+
+    rafID.current = requestAnimationFrame(updatePlaybackUI);
+  }
+
+  function handlePause() {
+    cancelAnimationFrame(rafID.current);
+    setIsPlaying(false);
+
+    if (sourceRef.current) {
+      const ctx = getAudioContext();
+      pausedTimeRef.current = ctx.currentTime - startTimeRef.current;
+      try { sourceRef.current.stop(); } catch {}
+      sourceRef.current = null;
+    }
+  }
+
+  const handleSkip = useCallback((fraction: number) => {
+    const d = durationRef.current;
+    if (!isFinite(d) || d <= 0 || !audioBufferRef.current) return;
+
+    const clamped = Math.min(Math.max(fraction, 0), 1);
+    const time = clamped * d;
+
+    pausedTimeRef.current = time;
+    setCurrentTime(time);
+    setPlaybackPercent(clamped);
+    waveRef.current?.update(clamped);
+
+    // If already playing restart source node at the new time offset
+    if (isPlaying) {
+      handlePlay();
+    }
+  }, [isPlaying]);
+
+  return {
+    currentTime,
+    duration,
+    isPlaying,
+    peaks,
+    playbackPercent,
+    waveRef,
+    handlePlay,
+    handlePause,
+    handleSkip,
+  };
 }

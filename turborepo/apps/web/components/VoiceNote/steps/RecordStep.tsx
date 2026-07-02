@@ -45,8 +45,8 @@ export default function RecordStep({ recorder, onConfirm} : Props) {
 
                 {showPausedUi && (
                     <PausedWaveform
-                        audioPlayer={audioPlayer}
-                        onDelete={() => setConfirmingDelete(true)}
+                    audioPlayer={audioPlayer}
+                    onDelete={() => setConfirmingDelete(true)}
                     />
                 )}
             </div>
@@ -54,17 +54,17 @@ export default function RecordStep({ recorder, onConfirm} : Props) {
             {confirmingDelete && (
                 <motion.div>
                     <ConfirmDeletePopup
-                        onCancel={() => setConfirmingDelete(false)}
-                        onConfirm={handleDeleteConfirm}
+                    onCancel={() => setConfirmingDelete(false)}
+                    onConfirm={handleDeleteConfirm}
                     />
                 </motion.div>
             )}
 
             <p className={styles.clipDuration}>
-                {showPausedUi && recorder.previewUrl
-                ? `${formatElapsed(playedMs)} / ${formatElapsed(elapsedMs)}`
+            {showPausedUi && recorder.previewUrl
+                ? `${formatElapsed(audioPlayer.currentTime * 1000)} / ${formatElapsed(audioPlayer.duration * 1000)}`
                 : formatElapsed(elapsedMs)
-                }
+            }
             </p>
 
             <div className={styles.btns}>

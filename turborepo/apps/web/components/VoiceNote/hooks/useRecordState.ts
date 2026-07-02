@@ -5,15 +5,11 @@ import { VoiceRecorder } from "../types/types";
 export function useRecordStepState(recorder: VoiceRecorder, onConfirm: () => void) {
     const [elapsedMs, setElapsedMs] = useState<number>(recorder.totalTime || 0);
     const [confirmingDelete, setConfirmingDelete] = useState<boolean>(false);
-    const audioPlayer = useAudioPlayer(recorder.previewUrl || "");
+    const audioPlayer = useAudioPlayer(recorder.previewUrl || "", elapsedMs / 1000);
 
     const hasPreview = Boolean(recorder.previewUrl) && audioPlayer.peaks.length > 0;
     const showPausedUi = recorder.phase === "paused" || (recorder.phase === "idle" && hasPreview);
-
-    const progress = audioPlayer.playbackPercent > 1
-        ? audioPlayer.playbackPercent / 100
-        : audioPlayer.playbackPercent;
-    const playedMs = Math.floor(progress * audioPlayer.duration * 1000);
+    const playedMs = Math.floor(audioPlayer.currentTime * 1000);
 
     // Sync elapsed time with recorder
     useEffect(() => {

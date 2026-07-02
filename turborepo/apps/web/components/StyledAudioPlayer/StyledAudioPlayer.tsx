@@ -1,10 +1,10 @@
 "use client";
-
+import { useState } from "react";
 import Image from "next/image";
 import styles from "./StyledAudioPlayer.module.css";
 import useAudioPlayer from "./hooks/UseAudioPlayer";
 
-type Props = { src: string };
+type Props = { src: string; duration?: number };
 
 function formatTime(s: number) {
   const m = Math.floor(s / 60);
@@ -12,32 +12,27 @@ function formatTime(s: number) {
   return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
-export default function StyledAudioPlayer({ src }: Props) {
+export default function StyledAudioPlayer({ src, duration: propDuration }: Props) {
   const {
     audioRef,
     isPlaying,
     currentTime,
-    duration,
+    duration: hookDuration, 
     volume,
-    showVolume,
-    filled,
     handlePlayPause,
     handleSeek,
     handleVolume,
-    showPopup,
-    hidePopup,
-    handleLoadedMetadata,
     handleEnded,
-  } = useAudioPlayer();
+  } = useAudioPlayer(src);
+
+  const [showVolume, setShowVolume] = useState(false);
+  const finalDuration = hookDuration || propDuration || 1;
+  const filled = `${(currentTime / finalDuration) * 100}%`;
 
   return (
     <div className={styles.player}>
-      <audio
-        ref={audioRef}
-        src={src}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={handleEnded}
-      />
+      {/* Kept as a dummy node for DOM layout compliance — Web Audio API emits the sound */}
+      <audio ref={audioRef} onEnded={handleEnded} />
 
       <button className={styles.playBtn} type="button" onClick={handlePlayPause}>
         <Image
@@ -52,7 +47,7 @@ export default function StyledAudioPlayer({ src }: Props) {
         className={styles.progress}
         type="range"
         min={0}
-        max={duration || 1}
+        max={finalDuration}
         step={0.01}
         value={currentTime}
         onChange={handleSeek}
@@ -61,19 +56,15 @@ export default function StyledAudioPlayer({ src }: Props) {
 
       <div
         className={styles.volumeWrapper}
-        onMouseEnter={showPopup}
-        onMouseLeave={hidePopup}
+        onMouseEnter={() => setShowVolume(true)}
+        onMouseLeave={() => setShowVolume(false)}
       >
         <button className={styles.volumeBtn} type="button">
           <Image src="/icons/volume.svg" width={20} height={20} alt="Volume" />
         </button>
 
         {showVolume && (
-          <div
-            className={styles.volumePopup}
-            onMouseEnter={showPopup}
-            onMouseLeave={hidePopup}
-          >
+          <div className={styles.volumePopup}>
             <input
               className={styles.volumeSlider}
               type="range"
@@ -89,7 +80,7 @@ export default function StyledAudioPlayer({ src }: Props) {
       </div>
 
       <span className={styles.time}>
-        {formatTime(currentTime)} / {formatTime(duration)}
+        {formatTime(currentTime)} / {formatTime(finalDuration)}
       </span>
     </div>
   );

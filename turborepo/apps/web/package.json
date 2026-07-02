@@ -16,6 +16,7 @@
     "@repo/ui": "*",
     "@supabase/supabase-js": "^2.106.1",
     "@tabler/icons-react": "^3.44.0",
+    "fix-webm-duration": "^1.0.6",
     "mapbox-gl": "^3.20.0",
     "motion": "^12.40.0",
     "next": "16.2.0",
