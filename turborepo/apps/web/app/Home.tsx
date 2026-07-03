@@ -117,7 +117,7 @@ export default function Home() {
           height={650}
           quality={75}
         />
-        <small>North Street. 12:54PM</small>
+        <small>Major Road. 12:54PM</small>
       </div>
           <p>
             An archive of the things we feel pinned to the
@@ -125,7 +125,7 @@ export default function Home() {
             simulatenously a diary of our public spaces.
           </p>
           <p>
-              If you have a moment you want to leave on launch
+              If you have an entry you want to leave on launch
           </p>
         <button onClick={() => setModalOpen(true)} className={styles.cta2}>Open this</button>
     </div>

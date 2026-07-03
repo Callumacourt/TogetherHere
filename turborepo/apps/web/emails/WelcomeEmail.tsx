@@ -6,13 +6,11 @@ import {
   Text,
   Font,
   Section,
-  Img,
   Hr,
 } from "@react-email/components";
 
 const serif = "'Playfair Display', Georgia, 'Times New Roman', serif";
 const sans  = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
-const baseUrl = process.env.SITE_URL;
 
 export default function WelcomeEmail() {
   return (
@@ -77,13 +75,6 @@ export default function WelcomeEmail() {
             }}>
               Thank you for joining my project.
             </Text>
-
-            <Img
-              src={`${baseUrl}/emailImg.jpg`}
-              alt="Train Station Image"
-              width={120}
-              height={40}
-            />
 
             <Text style={{
               fontFamily: sans,
@@ -154,7 +145,7 @@ export default function WelcomeEmail() {
             lineHeight: 1.6,
           }}>
             Thank you,<br />
-            Callum A'court, TogetherHere
+            Callum A'court, TogetherHere Founder
           </Text>
 
         </Container>
