@@ -5,6 +5,5 @@ export async function webmHelper(
   durationMs: number
 ): Promise<Blob> {
  return await fixWebmDuration(blob, durationMs, {
-  logger: (msg) => alert(msg),
 })}
 ;

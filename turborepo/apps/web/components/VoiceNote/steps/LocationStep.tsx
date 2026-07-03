@@ -36,6 +36,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
     const [mapInstance, setMapInstance] = useState<MapInstance | undefined>(undefined);
     const mapRef = useRef<MapRef | null>(null);
     const pendingPin = useRef<{lat: number, lng: number} | null>(null);
+    const geoResolvedRef = useRef(false);
 
     function onLocationGet (location : GeolocationPosition) {
         const lng = location.coords.longitude;
@@ -43,6 +44,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
         // Store the pin regardless of whether map is ready yet
         pendingPin.current = { lat, lng };
         onPinChange({ lat, lng });
+        geoResolvedRef.current = true;
         // Only flyTo if map is already loaded, otherwise onLoad will handle it
         if (!mapRef.current) return;
         mapRef.current.flyTo({ center: [lng, lat], zoom: 15 });
@@ -53,6 +55,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 onLocationGet(pos);
+                setLoading(false);
             },
             () => {
                 setGeoError(true);
@@ -101,15 +104,17 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
                 // If geolocation resolved before map loaded, fly now
                 if (pendingPin.current) {
                     mapRef.current?.flyTo({ center: [pendingPin.current.lng, pendingPin.current.lat], zoom: 15 });
-                } else {
+                } else if (geoResolvedRef.current) {
                     setLoading(false);
                 }
             }}
             onMoveEnd={() => {
-                setLoading(false);
-                if (pendingPin.current) {
-                    onPinChange(pendingPin.current);
-                    pendingPin.current = null;
+                if (geoResolvedRef.current) {
+                    setLoading(false);
+                    if (pendingPin.current) {
+                        onPinChange(pendingPin.current);
+                        pendingPin.current = null;
+                    }
                 }
             }}
             reuseMaps
