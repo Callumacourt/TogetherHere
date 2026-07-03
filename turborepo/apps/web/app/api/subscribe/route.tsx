@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
         // add a modest timeout so a network hang doesn't keep the request open forever
         const sendPromise = resend.emails.send({
-            from: "TogetherHere <onboarding@resend.dev>",
+            from: "TogetherHere <hello@togetherhere.uk>",
             to: cleanedEmail,
             subject: "Welcome",
             react: <WelcomeEmail />,

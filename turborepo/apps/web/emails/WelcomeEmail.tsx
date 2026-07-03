@@ -75,7 +75,7 @@ export default function WelcomeEmail() {
               margin: "0 0 24px 0",
               letterSpacing: "-0.01em",
             }}>
-              Thank you for joining our project.
+              Thank you for joining my project.
             </Text>
 
             <Img
@@ -92,8 +92,8 @@ export default function WelcomeEmail() {
               color: "rgba(255,255,255,0.80)",
               margin: "0 0 16px 0",
             }}>
-              The same one you take to work. It was the last time they'd be cold in London before they move away.
-              They left that thought exactly where it happened. It's always there now.
+              My ambitions are to create first a visualisation of our collective living and then expand this project
+              into a tool that facilitates community engagement and brings strangers together.  
             </Text>
 
             <Text style={{
@@ -103,8 +103,7 @@ export default function WelcomeEmail() {
               color: "rgba(255,255,255,0.80)",
               margin: "0 0 16px 0",
             }}>
-              We're building an archive of the things we feel pinned to the exact
-              places where we felt them. A private diary scattered across public spaces.
+          
             </Text>
 
             <Text style={{
@@ -114,7 +113,8 @@ export default function WelcomeEmail() {
               color: "rgba(255,255,255,0.80)",
               margin: "0 0 32px 0",
             }}>
-              We are currently mapping South London.
+              TogetherHere is currently in early development. You'll recieve updates and have oppurtunities 
+              to engage with the project from here. Creatives of all kinds are welcome to get in touch. 
             </Text>
           </Section>
 
@@ -128,7 +128,7 @@ export default function WelcomeEmail() {
               color: "rgba(255,255,255,0.80)",
               margin: "0 0 16px 0",
             }}>
-              Every two weeks we'll send you a single audio fragment recorded somewhere nearby.
+              
             </Text>
 
             <Text style={{
@@ -138,11 +138,10 @@ export default function WelcomeEmail() {
               color: "rgba(255,255,255,0.80)",
               margin: "0 0 32px 0",
             }}>
-              If you have a thought you want to leave behind before we launch,{" "}
+              If you have a note you want to leave behind before we launch,{" "}
               <a href="#" style={{ color: "#fff", textDecoration: "underline" }}>
                 click here
               </a>{""}
-              and we'll plant it for you.
             </Text>
           </Section>
 
@@ -154,8 +153,8 @@ export default function WelcomeEmail() {
             margin: "0",
             lineHeight: 1.6,
           }}>
-            Speak soon,<br />
-            The TogetherHere team.
+            Thank you,<br />
+            Callum A'court, TogetherHere
           </Text>
 
         </Container>
