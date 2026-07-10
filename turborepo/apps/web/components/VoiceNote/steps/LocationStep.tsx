@@ -31,7 +31,7 @@ const SearchTheme: Theme = {
 export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
 
     const [isDesktop, setIsDesktop] = useState(false);
-    const [geoError, setGeoError] = useState(false);
+    const [geoError, setGeoError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false)
     const [mapInstance, setMapInstance] = useState<MapInstance | undefined>(undefined);
     const mapRef = useRef<MapRef | null>(null);
@@ -51,27 +51,61 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
     }
     
     useEffect(() => {
-        setLoading(true);
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                onLocationGet(pos);
-                setLoading(false);
-            },
-            () => {
-                setGeoError(true);
-                setLoading(false); 
-            },
-            {
-                maximumAge: 60_000,
-                timeout: 8000,
+        let cancelled = false;
+        let watchId: number | null = null;
+
+        const succeed = (pos: GeolocationPosition) => {
+            if (cancelled) return;
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
             }
-        );
+            onLocationGet(pos);
+            setLoading(false);
+        };
+
+        const fail = (message: string) => {
+            if (cancelled) return;
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            setGeoError(message);
+            setLoading(false);
+        };
+
+        if (!("geolocation" in navigator)) {
+            setGeoError("Location isn't available here, please use the searchbar");
+        } else {
+            setLoading(true);
+            navigator.geolocation.getCurrentPosition(
+                succeed,
+                (err) => {
+                    if (cancelled) return;
+                    if (err.code === err.PERMISSION_DENIED) {
+                        fail("Location permission denied, please use the searchbar");
+                        return;
+                    }
+                    // Slow first fix (common in in-app browsers and on desktop):
+                    // keep listening via watchPosition and take the first result
+                    watchId = navigator.geolocation.watchPosition(
+                        succeed,
+                        () => fail("Error finding your location, please use the searchbar"),
+                        { enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 }
+                    );
+                },
+                { maximumAge: 300_000, timeout: 10_000 }
+            );
+        }
+
         const mq = window.matchMedia("(min-width:1008px)");
         const onChange = (e: MediaQueryListEvent | MediaQueryList) => setIsDesktop(Boolean("matches" in e ? e.matches : mq.matches));
         setIsDesktop(mq.matches);
         if (mq.addEventListener) mq.addEventListener("change", onChange);
         else mq.addListener(onChange);
         return () => {
+            cancelled = true;
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
             if (mq.removeEventListener) mq.removeEventListener("change", onChange as any);
             else mq.removeListener(onChange as any);
         };
@@ -143,7 +177,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
             </Map>
             </div>
             <span className = {styles.locationNav}>
-                {geoError && (<>Error finding your location, please use the searchbar</>)}
+                {geoError && (<>{geoError}</>)}
                 <button className = {styles.continueBtn} type="button" onClick={onConfirm}>Continue</button>
             </span>
         </>

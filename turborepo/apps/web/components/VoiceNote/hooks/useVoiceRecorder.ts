@@ -87,8 +87,15 @@ export default function useVoiceRecorder(
       setAudioBlob(null);
       replacePreviewUrl(null);
 
-      // Init audio stream and recorder
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Init audio stream and recorder. Voice-call processing (echo cancellation,
+      // auto gain) pumps the volume when other media is playing, so capture raw
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+      });
       streamRef.current = stream;
       const mimeType =
         MediaRecorder.isTypeSupported("audio/webm;codecs=opus")

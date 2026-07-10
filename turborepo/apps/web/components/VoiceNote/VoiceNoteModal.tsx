@@ -9,6 +9,7 @@ import { motion } from "motion/react";
 import PhotoStep from "./steps/PhotoStep";
 import useImageIntake from "./hooks/useImageIntake";
 import StyledAudioPlayer from "../StyledAudioPlayer/StyledAudioPlayer";
+import { pauseAllAudioPlayers } from "../AudioWave/Utils/useAudioPlayer";
 import ConfirmClosing from "../ConfirmClosing.tsx/ConfirmClosing";
 import { ClipLoader } from "react-spinners";
 import SuccessStep from "./steps/SuccessStep";
@@ -42,6 +43,9 @@ export default function VoiceModal ({onClose} : Prop) {
 
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
+
+      // Map popup audio playing under the modal would fight the mic recording
+      pauseAllAudioPlayers();
 
       return () => {
         document.body.style.overflow = previousBodyOverflow;

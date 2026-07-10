@@ -111,7 +111,7 @@ export default function WelcomeEmail() {
             <Text style={{ ...paragraph, margin: "0 0 32px 0" }}>
               TogetherHere is currently in early development. You&apos;ll receive
               updates and have opportunities to engage with the project from
-              here. Creatives of all kinds are welcome to get in touch.
+              here.  <br /><br /> Creatives of all kinds are welcome to get in touch.
             </Text>
           </Section>
 

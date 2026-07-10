@@ -6,6 +6,12 @@ type Peak = { min: number; max: number };
 type CacheEntry = { peaks: Peak[]; duration: number; buffer: AudioBuffer };
 export const peakCache = new Map<string, CacheEntry>();
 
+// Lets other features (e.g. the voice note recorder) silence all mounted players
+const activePausers = new Set<() => void>();
+export function pauseAllAudioPlayers() {
+  activePausers.forEach((pause) => pause());
+}
+
 export default function useAudioPlayer(audioUrl: string) {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
@@ -150,6 +156,14 @@ export default function useAudioPlayer(audioUrl: string) {
       sourceRef.current = null;
     }
   }
+
+  // handlePause only touches refs and setState, so the first instance stays valid
+  useEffect(() => {
+    activePausers.add(handlePause);
+    return () => {
+      activePausers.delete(handlePause);
+    };
+  }, []);
 
   const handleSkip = useCallback((fraction: number) => {
     const d = durationRef.current;
