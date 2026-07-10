@@ -20,9 +20,10 @@ export default function MapComponent() {
   const [isDesktop, setIsDesktop] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
+
   const bounds: mapboxgl.LngLatBoundsLike = [
-    [-3.204, 51.477],
-    [-3.165, 51.490],
+    [-3.255, 51.438],
+    [-3.115, 51.529],
   ];
 
   useEffect(() => {
@@ -77,20 +78,23 @@ export default function MapComponent() {
   return (
     <div className={styles.mapContainer}>
     <Map
-        reuseMaps
-        mapboxAccessToken= {process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-        maxBounds={bounds}
-        onIdle={(e) => e.target.stop()}
-        initialViewState={
-            {
-                longitude: -3.1832,
-                latitude: 51.4836,
-                zoom: 13
-            }}
-            mapStyle= "mapbox://styles/mapbox/dark-v11"
-            minZoom={13}
-            maxZoom={18}
-            style={{ width: "100%", height: "100%" }}
+      reuseMaps
+      mapboxAccessToken= {process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+      maxBounds={bounds}
+      dragRotate={false}
+      touchPitch={false}
+      onLoad={(e) => e.target.touchZoomRotate.disableRotation()}
+      onIdle={(e) => e.target.stop()}
+      initialViewState={
+          {
+              longitude: -3.1832,
+              latitude: 51.4836,
+              zoom: 13.5
+          }}
+          mapStyle= "mapbox://styles/mapbox/dark-v11"
+          minZoom={13}
+          maxZoom={18}
+          style={{ width: "100%", height: "100%" }}
     >
       {isDesktop && (
           <NavigationControl position="top-right" showCompass={false} />

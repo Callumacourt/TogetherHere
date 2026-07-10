@@ -56,6 +56,7 @@ export default function VoiceModal ({onClose} : Prop) {
       }
 
       setSubmitting(true);
+      setSubmitError(null);
       const data = new FormData();
       data.append('audio', recorder.audioBlob!);
       data.append('imgFile', imageIntake.file);
@@ -176,23 +177,27 @@ export default function VoiceModal ({onClose} : Prop) {
                 <StyledAudioPlayer duration = {recorder.totalTime / 1000} src={audioURL}/>
               </div>
               <span className = {styles.reviewButtons}>
-                <button onClick={handleReset}>Re-record</button>  
-                {submitting ? (
-                  <div className = {styles.spinnerContainer}>
-                    <ClipLoader
-                      color="white"
-                      loading = {submitting}
-                      size={25}
-                      aria-label = "Loading spinner"
-                    />
-                  </div>
-                ) : (
-                <button onClick={async () => {
-                  await recorder.stop();
-                  await handleSubmit();
-                }}>Post</button>
-              )
-              }
+                {submitError && <p className={styles.submitError}>{submitError}</p>}
+                <button className={styles.rerecordBtn} disabled={submitting} onClick={handleReset}>Re-record</button>
+                <button
+                  className={styles.postBtn}
+                  disabled={submitting}
+                  onClick={async () => {
+                    await recorder.stop();
+                    await handleSubmit();
+                  }}
+                >
+                  <span className={submitting ? styles.hiddenLabel : undefined}>Post</span>
+                  {submitting && (
+                    <span className={styles.btnSpinner}>
+                      <ClipLoader
+                        color="white"
+                        size={20}
+                        aria-label="Loading spinner"
+                      />
+                    </span>
+                  )}
+                </button>
               </span>
             </div>
             )}

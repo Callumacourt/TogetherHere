@@ -53,6 +53,7 @@
     border: 0px;
     cursor: pointer;
     flex-shrink: 0;
+    transition: opacity 160ms ease, transform 0.1s ease;
 }
 
 .closeBtn {
@@ -62,8 +63,13 @@
 
 .closeBtn:hover,
 .prevBtn:hover {
-    transition: opacity 160ms ease;
     opacity: 0.7;
+}
+
+.closeBtn:active,
+.prevBtn:active {
+    opacity: 0.5;
+    transform: scale(0.9);
 }
 
 .contentWrapper {
@@ -122,12 +128,44 @@
     font-family: "Space Grotesk", "Inter", "Avenir Next", "Segoe UI", sans-serif;
     font-size: 1.05rem;
     font-weight: 600;
+    transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
-.spinnerContainer {
+.reviewButtons button:active {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(0.98);
+}
+
+.reviewButtons button:disabled {
+    cursor: not-allowed;
+    transform: none;
+}
+
+.rerecordBtn:disabled {
+    opacity: 0.6;
+}
+
+.postBtn {
+    position: relative;
+}
+
+.hiddenLabel {
+    visibility: hidden;
+}
+
+.btnSpinner {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.submitError {
+    margin-right: auto;
+    align-self: center;
+    color: #ff6b6b;
+    font-size: 0.85rem;
 }
 
 .successSection {
@@ -195,8 +233,8 @@
         font-size: 0.8rem;
     }
 
-    .spinnerContainer {
-        padding: 0.7vh 2.5vw;
+    .submitError {
+        font-size: 0.7rem;
     }
 }
 

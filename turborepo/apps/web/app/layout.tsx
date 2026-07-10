@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Instrument_Sans, Inter, PT_Serif_Caption } from "next/font/google";
 import "./globals.css";
 import Footer from "../components/Footer/Footer";
@@ -25,6 +25,13 @@ const instrumentSans = Instrument_Sans({
 export const metadata: Metadata = {
   title: "Together Here",
   description: "A digital archive of human presence",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

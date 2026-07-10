@@ -75,6 +75,12 @@
     cursor: pointer;
     background-color: transparent;
     border: none;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.playbackControls button:active {
+    opacity: 0.6;
+    transform: scale(0.88);
 }
 
 @media (min-width: 1024px) {

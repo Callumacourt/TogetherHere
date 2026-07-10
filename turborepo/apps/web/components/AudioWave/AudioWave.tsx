@@ -119,7 +119,7 @@ const AudioWave = forwardRef(function AudioWave(
         if (isScrubbing.current) return;
         const canvas = overlayCanvasRef.current;
         if (!canvas) return;
-        overlayCtxRef.current = canvas.getContext("2d");
+        if (!overlayCtxRef.current) overlayCtxRef.current = canvas.getContext("2d");
         const ctx = overlayCtxRef.current;
         if (!ctx) return;
         ctx.clearRect(0, 0, cssWidth, cssHeight);
@@ -144,18 +144,7 @@ const AudioWave = forwardRef(function AudioWave(
     return Math.min(1, Math.max(0, (pointer.clientX - rect.left) / rect.width));
   };
 
-  const handlePointerDown = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
-    isScrubbing.current = true;
-    wasPlaying.current = isPlaying;
-    if (isPlaying) handlePause();
-    if (styles.scrubbing) overlayCanvasRef.current?.classList.add(styles.scrubbing);
-    pointer.currentTarget.setPointerCapture(pointer.pointerId);
-  };
-
-  const handlePointerMove = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!isScrubbing.current) return;
-    const fraction = getFraction(pointer);
-    if (fraction === undefined) return;
+  const drawScrub = (fraction: number) => {
     setScrubPercent(fraction);
     const ctx = overlayCtxRef.current;
     if (!ctx) return;
@@ -172,6 +161,23 @@ const AudioWave = forwardRef(function AudioWave(
     });
   };
 
+  const handlePointerDown = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
+    isScrubbing.current = true;
+    wasPlaying.current = isPlaying;
+    if (isPlaying) handlePause();
+    if (styles.scrubbing) overlayCanvasRef.current?.classList.add(styles.scrubbing);
+    pointer.currentTarget.setPointerCapture(pointer.pointerId);
+    const fraction = getFraction(pointer);
+    if (fraction !== undefined) drawScrub(fraction);
+  };
+
+  const handlePointerMove = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!isScrubbing.current) return;
+    const fraction = getFraction(pointer);
+    if (fraction === undefined) return;
+    drawScrub(fraction);
+  };
+
   const handlePointerUp = (pointer: React.PointerEvent<HTMLCanvasElement>) => {
     isScrubbing.current = false;
     if (styles.scrubbing) overlayCanvasRef.current?.classList.remove(styles.scrubbing);
@@ -185,6 +191,7 @@ const AudioWave = forwardRef(function AudioWave(
 
   const handlePointerCancel = () => {
     isScrubbing.current = false;
+    if (wasPlaying.current) handlePlay();
     wasPlaying.current = false;
     if (styles.scrubbing) overlayCanvasRef.current?.classList.remove(styles.scrubbing);
     setScrubPercent(null);

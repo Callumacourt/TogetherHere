@@ -23,11 +23,15 @@
     text-decoration: underline;
     font-size: 1.05rem;
     cursor: pointer;
+    transition: opacity 160ms ease;
 }
 
 .continueBtn:hover {
-    transition: opacity 160ms ease;
     opacity: 0.7;
+}
+
+.continueBtn:active {
+    opacity: 0.5;
 }
 
 .title {
