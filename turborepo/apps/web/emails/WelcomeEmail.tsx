@@ -6,11 +6,23 @@ import {
   Text,
   Font,
   Section,
+  Img,
   Hr,
+  Preview,
 } from "@react-email/components";
 
 const serif = "'Playfair Display', Georgia, 'Times New Roman', serif";
 const sans  = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+
+const heroImageUrl = `${process.env.BASE_URL ?? ""}/images/email/emailImg1.jpg`;
+
+const paragraph: React.CSSProperties = {
+  fontFamily: sans,
+  fontSize: "16px",
+  lineHeight: 1.7,
+  color: "rgba(255,255,255,0.80)",
+  margin: "0 0 20px 0",
+};
 
 export default function WelcomeEmail() {
   return (
@@ -38,6 +50,8 @@ export default function WelcomeEmail() {
         />
       </Head>
 
+      <Preview>A digital archive of human presence — thank you for joining.</Preview>
+
       <Body style={{
         backgroundColor: "#000",
         margin: 0,
@@ -52,13 +66,13 @@ export default function WelcomeEmail() {
         }}>
 
           <Text style={{
-            fontFamily: serif,
-            fontSize: "13px",
-            fontWeight: 700,
-            letterSpacing: "0.14em",
+            fontFamily: sans,
+            fontSize: "12px",
+            fontWeight: 400,
+            letterSpacing: "0.22em",
             textTransform: "uppercase",
             color: "rgba(255,255,255,0.45)",
-            margin: "0 0 40px 0",
+            margin: "0 0 36px 0",
           }}>
             TogetherHere
           </Text>
@@ -66,73 +80,47 @@ export default function WelcomeEmail() {
           <Section>
             <Text style={{
               fontFamily: serif,
-              fontSize: "26px",
+              fontSize: "28px",
               fontWeight: 700,
-              lineHeight: 1.3,
+              lineHeight: 1.25,
               color: "#fff",
-              margin: "0 0 24px 0",
+              margin: "0 0 28px 0",
               letterSpacing: "-0.01em",
             }}>
               Thank you for joining my project.
             </Text>
 
-            <Text style={{
-              fontFamily: sans,
-              fontSize: "16px",
-              lineHeight: 1.7,
-              color: "rgba(255,255,255,0.80)",
-              margin: "0 0 16px 0",
-            }}>
-              My ambitions are to create first a visualisation of our collective living and then expand this project
-              into a tool that facilitates community engagement and brings strangers together.  
+            <Img
+              src={heroImageUrl}
+              alt=""
+              width="496"
+              style={{
+                width: "100%",
+                borderRadius: "12px",
+                display: "block",
+                margin: "0 0 28px 0",
+              }}
+            />
+
+            <Text style={paragraph}>
+              My ambition is to first create a visualisation of our collective
+              living, then expand this project into a tool that facilitates
+              community engagement and brings strangers together.
             </Text>
 
-            <Text style={{
-              fontFamily: sans,
-              fontSize: "16px",
-              lineHeight: 1.7,
-              color: "rgba(255,255,255,0.80)",
-              margin: "0 0 16px 0",
-            }}>
-          
-            </Text>
-
-            <Text style={{
-              fontFamily: sans,
-              fontSize: "16px",
-              lineHeight: 1.7,
-              color: "rgba(255,255,255,0.80)",
-              margin: "0 0 32px 0",
-            }}>
-              TogetherHere is currently in early development. You'll recieve updates and have oppurtunities 
-              to engage with the project from here. Creatives of all kinds are welcome to get in touch. 
+            <Text style={{ ...paragraph, margin: "0 0 32px 0" }}>
+              TogetherHere is currently in early development. You&apos;ll receive
+              updates and have opportunities to engage with the project from
+              here. Creatives of all kinds are welcome to get in touch.
             </Text>
           </Section>
 
           <Hr style={{ borderColor: "rgba(255,255,255,0.10)", margin: "0 0 32px 0" }} />
 
           <Section>
-            <Text style={{
-              fontFamily: sans,
-              fontSize: "16px",
-              lineHeight: 1.7,
-              color: "rgba(255,255,255,0.80)",
-              margin: "0 0 16px 0",
-            }}>
-              
-            </Text>
-
-            <Text style={{
-              fontFamily: sans,
-              fontSize: "16px",
-              lineHeight: 1.7,
-              color: "rgba(255,255,255,0.80)",
-              margin: "0 0 32px 0",
-            }}>
-              If you have a note you want to leave behind before we launch,{" "}
-              <a href="#" style={{ color: "#fff", textDecoration: "underline" }}>
-                click here
-              </a>{""}
+            <Text style={{ ...paragraph, margin: "0 0 32px 0" }}>
+              In the meantime, feel free to leave as many notes on the website
+              as you like!!!
             </Text>
           </Section>
 
@@ -141,11 +129,22 @@ export default function WelcomeEmail() {
             fontSize: "15px",
             fontStyle: "italic",
             color: "rgba(255,255,255,0.55)",
-            margin: "0",
+            margin: "0 0 40px 0",
             lineHeight: 1.6,
           }}>
             Thank you,<br />
-            Callum A'court, TogetherHere Founder
+            Callum A&apos;court, TogetherHere Founder
+          </Text>
+
+          <Text style={{
+            fontFamily: sans,
+            fontSize: "12px",
+            lineHeight: 1.6,
+            color: "rgba(255,255,255,0.30)",
+            margin: 0,
+          }}>
+            You&apos;re receiving this email because you signed up for
+            TogetherHere updates.
           </Text>
 
         </Container>
