@@ -21,6 +21,8 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
 
     const barWidth = 2;
     const gap = 3;
+    // Boosts quiet speech so bars visibly react; clamped so shouting can't overflow
+    const gain = 2.5;
 
     function getCanvasCssSize(canvas: HTMLCanvasElement) {
         const dpr = window.devicePixelRatio || 1;
@@ -63,8 +65,8 @@ export default function LiveWaveForm ({ stream, isRecording } : Props) {
         for (let i = 0; i < peaksRef.current.length; i++) {
             const bar = peaksRef.current[i];
             if (bar === undefined) continue;
-            const amplitude = Math.abs(bar - 128) / 128;
-            const barHeight = Math.max(2, amplitude * centerY);
+            const amplitude = Math.min(1, (Math.abs(bar - 128) / 128) * gain);
+            const barHeight = Math.max(2, amplitude * cssHeight * 0.9);
 
             ctx.fillRect(i * (barWidth + gap), centerY - barHeight / 2, barWidth, barHeight);
         }

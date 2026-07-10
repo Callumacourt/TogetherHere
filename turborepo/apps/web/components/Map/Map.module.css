@@ -2,8 +2,15 @@
     width: 95%;
     height: 90vh;
     height: 90svh;
-    touch-action: none;
+    touch-action: pan-y;
     -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile: wider side gutters leave thumb-sized page-scroll zones */
+@media (max-width: 1007px) {
+    .mapContainer {
+        width: 88%;
+    }
 }
 
 .mapMarker {

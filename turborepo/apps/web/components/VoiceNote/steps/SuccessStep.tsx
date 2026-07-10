@@ -22,8 +22,8 @@ export default function SuccessStep ({onClose} : Props ) {
         <span className={styles.contactUs}>
           <p className={styles.contactLabel}>Want to work with us?</p>
           <span className={styles.contactLink}>
-            <p>Contact us</p>
-            <Image src={"/icons/white-arrow-right.svg"} alt="->" width={16} height={16} />
+              <a href="mailto:togetherhere@gmail.com">Contact us</a>
+              <Image src={"/icons/white-arrow-right.svg"} alt="->" width={16} height={16} />
           </span>
         </span>
         <button onClick={onClose} className={styles.doneBtn}>Done</button>

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Map, { Popup, Marker, NavigationControl } from "react-map-gl/mapbox";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import styles from "./Map.module.css";
@@ -19,6 +19,7 @@ type Note = {
 export default function MapComponent() {
   const [isDesktop, setIsDesktop] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
 
   const bounds: mapboxgl.LngLatBoundsLike = [
@@ -75,8 +76,23 @@ export default function MapComponent() {
     });
 }, []);
 
+  // Close the popup (stopping its audio) once the map is mostly scrolled out of view
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.intersectionRatio < 0.2) setSelectedNote(null);
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className={styles.mapContainer}>
+    <div className={styles.mapContainer} ref={containerRef}>
     <Map
       reuseMaps
       mapboxAccessToken= {process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
