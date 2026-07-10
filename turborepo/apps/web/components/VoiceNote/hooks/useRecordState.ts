@@ -28,6 +28,10 @@ export function useRecordStepState(recorder: VoiceRecorder, onConfirm: () => voi
 
     const handleMain = useCallback(async () => {
         if (showPausedUi) {
+            // Unconditional: audioPlayer.isPlaying would be a stale flag here
+            // since audioPlayer isn't a dep, but handlePause acts on refs that
+            // persist across renders, so calling it is always safe and correct
+            audioPlayer.handlePause();
             recorder.resume();
         } else if (recorder.phase === 'idle') {
             recorder.start();

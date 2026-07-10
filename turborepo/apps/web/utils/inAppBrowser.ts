@@ -13,3 +13,18 @@ export function getInAppBrowser(): "instagram" | "facebook" | "tiktok" | null {
   if (/TikTok|BytedanceWebview|Bytedance/i.test(ua)) return "tiktok";
   return null;
 }
+
+export function isAndroid(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Android/i.test(navigator.userAgent || "");
+}
+
+/**
+ * Android intent link that most in-app WebViews will honor as a real
+ * navigation, launching the URL directly in Chrome. No iOS equivalent
+ * exists reliably from inside an embedded WebView.
+ */
+export function buildAndroidChromeIntentUrl(url: string): string {
+  const withoutScheme = url.replace(/^https?:\/\//, "");
+  return `intent://${withoutScheme}#Intent;scheme=https;package=com.android.chrome;end;`;
+}

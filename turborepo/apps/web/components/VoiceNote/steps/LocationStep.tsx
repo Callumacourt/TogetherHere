@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import styles from "./LocationStep.module.css";
 import type { Theme } from '@mapbox/search-js-web'
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
-import { getInAppBrowser } from "../../../utils/inAppBrowser";
+import { getInAppBrowser, isAndroid, buildAndroidChromeIntentUrl } from "../../../utils/inAppBrowser";
 
 const SearchBox = dynamic(
     () => import("@mapbox/search-js-react").then(m => m.SearchBox),
@@ -44,6 +44,12 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
     const inAppBrowserLabel = inAppBrowser
         ? inAppBrowser[0]!.toUpperCase() + inAppBrowser.slice(1)
         : "";
+
+    // Android in-app WebViews will honor a Chrome intent link as a real
+    // navigation. No iOS equivalent exists, so fall back to copy-to-clipboard
+    const androidChromeUrl = typeof window !== "undefined" && isAndroid()
+        ? buildAndroidChromeIntentUrl(window.location.href)
+        : null;
 
     async function handleCopyLink() {
         try {
@@ -145,13 +151,16 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
         <>
         {inAppBrowser && (
             <div className={styles.inAppBanner}>
-                <p>
-                    {inAppBrowserLabel}&apos;s browser can&apos;t detect your location.
-                    Open this page in Safari/Chrome for one tap location, or use the searchbar below.
-                </p>
-                <button type="button" className={styles.copyLinkBtn} onClick={handleCopyLink}>
-                    {linkCopied ? "Copied!" : "Copy link"}
-                </button>
+                <p>{inAppBrowserLabel}&apos;s browser can&apos;t detect your location.</p>
+                {androidChromeUrl ? (
+                    <a href={androidChromeUrl} className={styles.bannerLink}>
+                        Open in Chrome
+                    </a>
+                ) : (
+                    <a href="#" className={styles.bannerLink} onClick={(e) => { e.preventDefault(); handleCopyLink(); }}>
+                        {linkCopied ? "Copied! Paste in Safari" : "Copy link to open in Safari"}
+                    </a>
+                )}
             </div>
         )}
         <div className = {styles.searchBoxContainer}>
@@ -218,7 +227,7 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
             </Map>
             </div>
             <span className = {styles.locationNav}>
-                {geoError && (<>{geoError}</>)}
+                {geoError && !inAppBrowser && (<>{geoError}</>)}
                 <button className = {styles.continueBtn} type="button" onClick={onConfirm}>Continue</button>
             </span>
         </>

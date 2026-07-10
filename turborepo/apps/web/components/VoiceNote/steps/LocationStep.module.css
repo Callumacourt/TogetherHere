@@ -52,35 +52,33 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 1.2vh 3vw;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 1vh 3vw;
     margin-bottom: 1.5vh;
     border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.15);
     background-color: rgba(255,255,255,0.06);
-    font-size: 0.9rem;
-    color: rgba(255,255,255,0.85);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
 }
 
 .inAppBanner p {
     margin: 0;
 }
 
-.copyLinkBtn {
+.bannerLink {
     flex-shrink: 0;
-    background-color: transparent;
-    border: 1px solid rgba(255,255,255,0.4);
-    border-radius: 20px;
-    padding: 0.8vh 3vw;
     color: white;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: underline;
     cursor: pointer;
-    transition: opacity 160ms ease, transform 0.1s ease;
+    transition: opacity 160ms ease;
 }
 
-.copyLinkBtn:active {
+.bannerLink:active {
     opacity: 0.6;
-    transform: scale(0.96);
 }
 
 /* Mobile Landscape */
