@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import styles from "./LocationStep.module.css";
 import type { Theme } from '@mapbox/search-js-web'
 import LoadingSpinner from "../../LoadingSpinner/LoadingSpinner";
+import { getInAppBrowser } from "../../../utils/inAppBrowser";
 
 const SearchBox = dynamic(
     () => import("@mapbox/search-js-react").then(m => m.SearchBox),
@@ -34,9 +35,23 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
     const [geoError, setGeoError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false)
     const [mapInstance, setMapInstance] = useState<MapInstance | undefined>(undefined);
+    const [inAppBrowser, setInAppBrowser] = useState<ReturnType<typeof getInAppBrowser>>(null);
+    const [linkCopied, setLinkCopied] = useState(false);
     const mapRef = useRef<MapRef | null>(null);
     const pendingPin = useRef<{lat: number, lng: number} | null>(null);
     const geoResolvedRef = useRef(false);
+
+    const inAppBrowserLabel = inAppBrowser
+        ? inAppBrowser[0]!.toUpperCase() + inAppBrowser.slice(1)
+        : "";
+
+    async function handleCopyLink() {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 2500);
+        } catch {}
+    }
 
     function onLocationGet (location : GeolocationPosition) {
         const lng = location.coords.longitude;
@@ -53,6 +68,12 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
     useEffect(() => {
         let cancelled = false;
         let watchId: number | null = null;
+
+        // Instagram/Facebook/TikTok in-app browsers frequently never honor a
+        // granted geolocation permission — detect them so we can explain why
+        // rather than let it look like a broken "Allow" button
+        const detectedInAppBrowser = getInAppBrowser();
+        setInAppBrowser(detectedInAppBrowser);
 
         const succeed = (pos: GeolocationPosition) => {
             if (cancelled) return;
@@ -83,15 +104,24 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
                 (err) => {
                     if (cancelled) return;
                     if (err.code === err.PERMISSION_DENIED) {
-                        fail("Location permission denied, please use the searchbar");
+                        fail(
+                            detectedInAppBrowser
+                                ? "This app's browser doesn't support location, please use the searchbar or open this page in Safari/Chrome"
+                                : "Location permission denied, please use the searchbar"
+                        );
                         return;
                     }
-                    // Slow first fix (common in in-app browsers and on desktop):
-                    // keep listening via watchPosition and take the first result
+                    // Slow first fix (common on desktop): keep listening via
+                    // watchPosition and take the first result. In-app browsers
+                    // rarely recover here, so fail faster and point at the searchbar
                     watchId = navigator.geolocation.watchPosition(
                         succeed,
-                        () => fail("Error finding your location, please use the searchbar"),
-                        { enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 }
+                        () => fail(
+                            detectedInAppBrowser
+                                ? "This app's browser doesn't support location, please use the searchbar or open this page in Safari/Chrome"
+                                : "Error finding your location, please use the searchbar"
+                        ),
+                        { enableHighAccuracy: true, timeout: detectedInAppBrowser ? 8_000 : 20_000, maximumAge: 0 }
                     );
                 },
                 { maximumAge: 300_000, timeout: 10_000 }
@@ -113,6 +143,17 @@ export default function LocationStep ({pin, onPinChange, onConfirm} : Props) {
 
     return (
         <>
+        {inAppBrowser && (
+            <div className={styles.inAppBanner}>
+                <p>
+                    {inAppBrowserLabel}&apos;s browser can&apos;t detect your location.
+                    Open this page in Safari/Chrome for one tap location, or use the searchbar below.
+                </p>
+                <button type="button" className={styles.copyLinkBtn} onClick={handleCopyLink}>
+                    {linkCopied ? "Copied!" : "Copy link"}
+                </button>
+            </div>
+        )}
         <div className = {styles.searchBoxContainer}>
         <SearchBox
             theme={SearchTheme}
