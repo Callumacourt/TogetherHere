@@ -44,8 +44,8 @@ export default function MapComponent() {
       lon: -3.1759,
       location: "Cardiff University",
       timeAgo: "12 minutes ago",
-      audioUrl: "/audio/uniAudio.m4a",
-      imgUrl: "/images/map/mapImg1.jpg",
+      audioUrl: "/audio/uniAudio.mp3",
+      imgUrl: "/images/map/uniImg.jpg",
     },
     {
       id: 2,
@@ -54,7 +54,7 @@ export default function MapComponent() {
       location: "Cardiff Castle",
       timeAgo: "1 hour ago",
       audioUrl: "/audio/castleAudio.m4a",
-      imgUrl: "/images/map/mapImg2.jpg",
+      imgUrl: "/images/map/castle.jpg",
     },
     {
       id: 3,
@@ -63,7 +63,7 @@ export default function MapComponent() {
       location: "Sophia Gardens Riverside",
       timeAgo: "Yesterday",
       audioUrl: "/audio/butePark.m4a",
-      imgUrl: "/images/map/mapImg3.jpg",
+      imgUrl: "/images/map/bute.jpg",
     },
   ]
 
