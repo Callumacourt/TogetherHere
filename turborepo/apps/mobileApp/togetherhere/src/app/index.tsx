@@ -1,6 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, View } from 'react-native';
-import { ThemedText } from '../components/themed-text';
+import { Map } from "@maplibre/maplibre-react-native";
 import { ThemedView } from '../components/themed-view';
 import { Link } from 'expo-router';
 
@@ -10,6 +10,9 @@ export default function HomeScreen() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.heroSection}>
           <Link style={styles.button} href={"/AccountScreen"}>Accounts page</Link>
+        </View>
+        <View style = {styles.map}>
+          <Map mapStyle={"https://tiles.openfreemap.org/styles/dark"}/>
         </View>
       </SafeAreaView>
     </ThemedView>
@@ -35,5 +38,10 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "white",
     color: "black",
+  },
+
+  map: {
+    flex: 1,
+    alignSelf: 'stretch',
   }
 });
