@@ -39,10 +39,12 @@
         }
       ],
       "@maplibre/maplibre-react-native",
-      "expo-location", 
-      {
-        "locationAlwaysAndWhenInUsePermission": "Allow TogetherHere to use your location"
-      }
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow TogetherHere to use your location"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
