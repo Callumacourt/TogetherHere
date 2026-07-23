@@ -1,11 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import * as location from 'expo-location';
 import haversine from 'haversine-distance';
-
-type Coordinate = {
-  lat: number;
-  lng: number;
-};
+import type { Coordinate } from '../../types/types';
 
 export default function useLocation() {
   const [userLocation, setUserLocation] =

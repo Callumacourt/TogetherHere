@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/ui": "~57.0.3",
     "@maplibre/maplibre-react-native": "^11.3.6",
+    "@supabase/supabase-js": "^2.109.0",
     "expo": "~57.0.2",
     "expo-constants": "~57.0.3",
     "expo-dev-client": "^57.0.5",
