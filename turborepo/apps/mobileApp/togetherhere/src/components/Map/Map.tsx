@@ -9,6 +9,7 @@ export default function MapComponent() {
   const [notesInBounds, setNotesInBounds] = useState<NoteList | null>();
   const mapElement = useRef<MapRef | null>(null);
 
+  // Fetch all voice notes within map bounds
   useEffect(() => {
     (async () => {
       if (!mapBounds) return;
@@ -22,6 +23,7 @@ export default function MapComponent() {
     return () => {};
   }, [mapBounds]);
 
+  // Callback on map nav
   const handleRegionChange = async () => {
     if (!mapElement.current) {
       throw new Error('No map element defined');
