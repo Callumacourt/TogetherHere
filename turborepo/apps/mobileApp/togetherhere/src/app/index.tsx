@@ -12,8 +12,8 @@ export default function HomeScreen() {
           <Link style={styles.button} href={'/AccountScreen'}>
             Accounts page
           </Link>
-          <MapComponent />
         </View>
+        <MapComponent />
       </SafeAreaView>
     </ThemedView>
   );

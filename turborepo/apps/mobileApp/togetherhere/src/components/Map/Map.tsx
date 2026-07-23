@@ -1,12 +1,34 @@
 import { fetchNotes } from '@/services/fetchNotes';
-import { Map, MapRef } from '@maplibre/maplibre-react-native';
-import { useEffect, useState, useRef } from 'react';
+import {
+  GeoJSONSource,
+  Map,
+  MapRef,
+  Layer,
+} from '@maplibre/maplibre-react-native';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { MapBounds, NoteList } from '../../../types/types';
 
+const toFeatureCollection = (
+  notesInBounds: NoteList,
+): GeoJSON.FeatureCollection => ({
+  type: 'FeatureCollection',
+  features: notesInBounds.map((note) => ({
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: [note.lng, note.lat] },
+    properties: { id: note.id },
+  })),
+});
+
 export default function MapComponent() {
-  const [mapBounds, setMapBounds] = useState<MapBounds | undefined>(undefined);
-  const [notesInBounds, setNotesInBounds] = useState<NoteList | null>();
+  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null);
+  const [notesInBounds, setNotesInBounds] = useState<NoteList>([]);
+
+  const noteFeatures = useMemo(
+    () => toFeatureCollection(notesInBounds),
+    [notesInBounds],
+  );
+
   const mapElement = useRef<MapRef | null>(null);
 
   // Fetch all voice notes within map bounds
@@ -40,7 +62,15 @@ export default function MapComponent() {
         ref={mapElement}
         onRegionDidChange={handleRegionChange}
         mapStyle={'https://tiles.openfreemap.org/styles/dark'}
-      />
+      >
+        <GeoJSONSource id="notes-source" data={noteFeatures}>
+          <Layer
+            id="notes-layer"
+            type="circle"
+            paint={{ 'circle-radius': 8, 'circle-color': '#ff3b30' }}
+          />
+        </GeoJSONSource>
+      </Map>
     </View>
   );
 }
